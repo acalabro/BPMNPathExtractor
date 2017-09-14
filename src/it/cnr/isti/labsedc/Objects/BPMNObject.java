@@ -1,4 +1,4 @@
-package Objects;
+package it.cnr.isti.labsedc.Objects;
 
 public abstract class BPMNObject {
 

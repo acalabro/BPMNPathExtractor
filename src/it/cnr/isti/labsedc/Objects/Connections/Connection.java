@@ -1,6 +1,6 @@
-package Objects.Connections;
+package it.cnr.isti.labsedc.Objects.Connections;
 
-import Objects.BPMNObject;
+import it.cnr.isti.labsedc.Objects.BPMNObject;
 
 public class Connection extends BPMNObject {
 
