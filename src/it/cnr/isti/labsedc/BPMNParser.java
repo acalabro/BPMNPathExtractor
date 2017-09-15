@@ -1,21 +1,13 @@
 package it.cnr.isti.labsedc;
 
-import it.cnr.isti.labsedc.Objects.Connections.Connection;
-import it.cnr.isti.labsedc.Objects.Connections.ConnectionType;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Activities.Activity;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Activities.ActivityType;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Activities.SubProcess;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Activities.Task;
+import it.cnr.isti.labsedc.Objects.Connections.*;
+import it.cnr.isti.labsedc.Objects.FlowObjects.Activities.*;
 import it.cnr.isti.labsedc.Objects.FlowObjects.Events.*;
 import it.cnr.isti.labsedc.Objects.FlowObjects.FlowObject;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Gateways.Gateway;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Gateways.GatewayType;
+import it.cnr.isti.labsedc.Objects.FlowObjects.Gateways.*;
 import it.cnr.isti.labsedc.Objects.Process;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,7 +33,6 @@ public class BPMNParser {
 
     public static ArrayList<Process> parseProcessesList(Document document) {
 
-        // Processes
         ArrayList<Process> processes = new ArrayList<>();
         NodeList processesNodes = document.getElementsByTagNameNS("http://www.omg.org/spec/BPMN/20100524/MODEL", "process");
 
@@ -55,7 +46,6 @@ public class BPMNParser {
 
             process = new Process(processID, processName, Boolean.parseBoolean(processExecutable));
 
-            // BPMN it.cnr.isti.labsedc.Objects
             NodeList processChildNodes = processNode.getChildNodes();
             for (int j = 0; j < processChildNodes.getLength(); j++) {
                 Node childNode = processChildNodes.item(j);

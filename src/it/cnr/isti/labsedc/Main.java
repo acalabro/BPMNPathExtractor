@@ -23,7 +23,6 @@ public class Main {
             System.exit(1);
         }
 
-        // Processes
         processes = BPMNParser.parseProcessesList(document);
         for (Process process : processes) System.out.print(process);
 
