@@ -6,7 +6,7 @@ import it.cnr.isti.labsedc.Objects.FlowObjects.FlowObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Process {
+public class BPMNProcess {
 
     private final String id;
     private final String name;
@@ -14,28 +14,32 @@ public class Process {
     private ArrayList<String> startEvents;
     private HashMap<String, FlowObject> flowObjects;
     private HashMap<String, Connection> connections;
+    private ArrayList<BPMNPath> paths;
+    private int pathID;
 
-    public Process(String id, String name, boolean executable) {
+    public BPMNProcess(String id, String name, boolean executable) {
         this.id = id;
         this.name = name;
         this.executable = executable;
         startEvents = new ArrayList<>();
         flowObjects = new HashMap<>();
         connections = new HashMap<>();
+        paths = new ArrayList<>();
+        pathID = 0;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return  false;
         if (getClass() != obj.getClass()) return false;
-        Process process = (Process) obj;
+        BPMNProcess process = (BPMNProcess) obj;
         return this.id.equals(process.id);
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Id: ").append(id).append(System.lineSeparator()).
+        stringBuilder.append("ID: ").append(id).append(System.lineSeparator()).
                 append("Name: ").append(name).append(System.lineSeparator()).
                 append("Is Executable: ").append(executable).append(System.lineSeparator()).
                 append(System.lineSeparator());
@@ -46,6 +50,11 @@ public class Process {
         return stringBuilder.toString();
     }
 
+    public int getPathID() {
+        pathID++;
+        return (pathID - 1);
+    }
+
     public String getId() { return id; }
     public String getName() { return name; }
     public boolean isExecutable() { return executable; }
@@ -53,9 +62,14 @@ public class Process {
     public ArrayList<String> getStartEvents() { return startEvents; }
     public HashMap<String, FlowObject> getFlowObjects() { return flowObjects; }
     public HashMap<String, Connection> getConnections() { return connections; }
+    public ArrayList<BPMNPath> getPaths() { return paths; }
+
+    public FlowObject getFlowObject(String id) { return flowObjects.get(id); }
+    public Connection getConnection(String id) { return connections.get(id); }
 
     public void addStartEvent(String id) { startEvents.add(id); }
     public void addFlowObject(String key, FlowObject flowObject) { flowObjects.put(key, flowObject); }
     public void addConnection(String key, Connection connection) { connections.put(key, connection); }
+    public void addPath(BPMNPath path) { paths.add(path); }
 
 }

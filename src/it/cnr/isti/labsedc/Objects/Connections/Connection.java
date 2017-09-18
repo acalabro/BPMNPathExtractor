@@ -20,7 +20,7 @@ public class Connection implements BPMNObject {
 
     @Override
     public String toString() {
-        return "Id: " + id + System.lineSeparator() +
+        return "ID: " + id + System.lineSeparator() +
                 "Name: " + name + System.lineSeparator() +
                 "Type: " + connectionType + System.lineSeparator() +
                 "Source Ref: " + sourceRef + System.lineSeparator() +

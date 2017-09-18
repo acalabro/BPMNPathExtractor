@@ -32,6 +32,9 @@ public abstract class FlowObject implements BPMNObject {
         return stringBuilder.toString();
     }
 
+    public ArrayList<String> getIncomingConnections() { return incomingConnections; }
+    public ArrayList<String> getOutgoingConnections() { return outgoingConnections; }
+
     public void addIncomingConnection(String connectionID) { incomingConnections.add(connectionID); }
     public void addOutgoingConnection(String connectionID) { outgoingConnections.add(connectionID); }
 

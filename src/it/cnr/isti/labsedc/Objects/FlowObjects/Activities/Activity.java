@@ -13,7 +13,7 @@ public class Activity extends FlowObject {
 
     @Override
     public String toString() {
-        return "Id: " + id + System.lineSeparator() +
+        return "ID: " + id + System.lineSeparator() +
                 "Name: " + name + System.lineSeparator() +
                 "Type: " + activityType + System.lineSeparator() +
                 super.toString();

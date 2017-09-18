@@ -1,5 +1,3 @@
 package it.cnr.isti.labsedc.Objects;
 
-public interface BPMNObject {
-
-}
+public interface BPMNObject {}

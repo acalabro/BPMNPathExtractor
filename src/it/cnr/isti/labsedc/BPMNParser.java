@@ -5,7 +5,7 @@ import it.cnr.isti.labsedc.Objects.FlowObjects.Activities.*;
 import it.cnr.isti.labsedc.Objects.FlowObjects.Events.*;
 import it.cnr.isti.labsedc.Objects.FlowObjects.FlowObject;
 import it.cnr.isti.labsedc.Objects.FlowObjects.Gateways.*;
-import it.cnr.isti.labsedc.Objects.Process;
+import it.cnr.isti.labsedc.Objects.BPMNProcess;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.*;
 
@@ -31,20 +31,20 @@ public class BPMNParser {
         return null;
     }
 
-    public static ArrayList<Process> parseProcessesList(Document document) {
+    public static ArrayList<BPMNProcess> parseProcessesList(Document document) {
 
-        ArrayList<Process> processes = new ArrayList<>();
+        ArrayList<BPMNProcess> processes = new ArrayList<>();
         NodeList processesNodes = document.getElementsByTagNameNS("http://www.omg.org/spec/BPMN/20100524/MODEL", "process");
 
         for (int i = 0; i < processesNodes.getLength(); i++) {
 
-            Process process;
+            BPMNProcess process;
             Node processNode = processesNodes.item(i);
             String processID = getAttributeValue(processNode, "id");
             String processName = getAttributeValue(processNode, "name");
             String processExecutable = getAttributeValue(processNode, "isExecutable");
 
-            process = new Process(processID, processName, Boolean.parseBoolean(processExecutable));
+            process = new BPMNProcess(processID, processName, Boolean.parseBoolean(processExecutable));
 
             NodeList processChildNodes = processNode.getChildNodes();
             for (int j = 0; j < processChildNodes.getLength(); j++) {

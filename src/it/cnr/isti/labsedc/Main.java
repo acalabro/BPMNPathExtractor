@@ -1,6 +1,7 @@
 package it.cnr.isti.labsedc;
 
-import it.cnr.isti.labsedc.Objects.Process;
+import it.cnr.isti.labsedc.Objects.BPMNPath;
+import it.cnr.isti.labsedc.Objects.BPMNProcess;
 import org.w3c.dom.*;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        ArrayList<Process> processes;
+        ArrayList<BPMNProcess> processes;
 
         if (args.length != 1) {
             System.err.println("Wrong args number");
@@ -24,7 +25,12 @@ public class Main {
         }
 
         processes = BPMNParser.parseProcessesList(document);
-        for (Process process : processes) System.out.print(process);
+        // for (BPMNProcess process : processes) System.out.print(process);
+        for (BPMNProcess process : processes) {
+            BPMNPathExtractor.extractPaths(process);
+            for (BPMNPath path : process.getPaths())
+                System.out.println(path);
+        }
 
     }
 
