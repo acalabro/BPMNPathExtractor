@@ -1,4 +1,4 @@
-package it.cnr.isti.labsedc.Objects.FlowObjects.Activities;
+package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Activities;
 
 public enum ActivityType {
 

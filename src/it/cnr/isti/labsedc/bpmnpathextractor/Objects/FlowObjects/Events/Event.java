@@ -1,6 +1,6 @@
-package it.cnr.isti.labsedc.Objects.FlowObjects.Events;
+package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Events;
 
-import it.cnr.isti.labsedc.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 public class Event extends FlowObject {
 

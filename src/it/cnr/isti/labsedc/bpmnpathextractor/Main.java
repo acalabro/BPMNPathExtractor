@@ -1,7 +1,7 @@
-package it.cnr.isti.labsedc;
+package it.cnr.isti.labsedc.bpmnpathextractor;
 
-import it.cnr.isti.labsedc.Objects.BPMNPath;
-import it.cnr.isti.labsedc.Objects.BPMNProcess;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
 import org.w3c.dom.*;
 
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
-package it.cnr.isti.labsedc.Objects.FlowObjects.Gateways;
+package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Gateways;
 
-import it.cnr.isti.labsedc.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 public class Gateway extends FlowObject {
 

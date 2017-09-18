@@ -1,6 +1,6 @@
-package it.cnr.isti.labsedc.Objects.FlowObjects;
+package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects;
 
-import it.cnr.isti.labsedc.Objects.BPMNObject;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNObject;
 
 import java.util.ArrayList;
 

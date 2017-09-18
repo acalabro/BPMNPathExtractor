@@ -1,6 +1,6 @@
-package it.cnr.isti.labsedc.Objects;
+package it.cnr.isti.labsedc.bpmnpathextractor.Objects;
 
-import it.cnr.isti.labsedc.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 import java.util.LinkedList;
 

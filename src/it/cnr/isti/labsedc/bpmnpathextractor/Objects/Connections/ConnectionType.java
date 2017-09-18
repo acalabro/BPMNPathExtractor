@@ -1,4 +1,4 @@
-package it.cnr.isti.labsedc.Objects.Connections;
+package it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections;
 
 public enum ConnectionType {
 

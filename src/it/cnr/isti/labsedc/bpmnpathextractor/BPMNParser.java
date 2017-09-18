@@ -1,17 +1,20 @@
-package it.cnr.isti.labsedc;
+package it.cnr.isti.labsedc.bpmnpathextractor;
 
-import it.cnr.isti.labsedc.Objects.Connections.*;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Activities.*;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Events.*;
-import it.cnr.isti.labsedc.Objects.FlowObjects.FlowObject;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Gateways.*;
-import it.cnr.isti.labsedc.Objects.BPMNProcess;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections.*;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Activities.*;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Events.*;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Gateways.*;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class BPMNParser {
@@ -25,7 +28,7 @@ public class BPMNParser {
             Document document = documentBuilder.parse(new File(path));
             document.getDocumentElement().normalize();
             return document;
-        } catch (Exception e) {
+        } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
         return null;

@@ -1,10 +1,10 @@
-package it.cnr.isti.labsedc;
+package it.cnr.isti.labsedc.bpmnpathextractor;
 
-import it.cnr.isti.labsedc.Objects.BPMNPath;
-import it.cnr.isti.labsedc.Objects.BPMNProcess;
-import it.cnr.isti.labsedc.Objects.Connections.Connection;
-import it.cnr.isti.labsedc.Objects.FlowObjects.Events.EndEvent;
-import it.cnr.isti.labsedc.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections.Connection;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Events.EndEvent;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

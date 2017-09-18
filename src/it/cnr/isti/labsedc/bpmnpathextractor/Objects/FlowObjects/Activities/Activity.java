@@ -1,6 +1,6 @@
-package it.cnr.isti.labsedc.Objects.FlowObjects.Activities;
+package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Activities;
 
-import it.cnr.isti.labsedc.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 public class Activity extends FlowObject {
 

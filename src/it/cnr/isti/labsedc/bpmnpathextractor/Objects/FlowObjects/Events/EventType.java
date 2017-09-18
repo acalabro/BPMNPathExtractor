@@ -1,4 +1,4 @@
-package it.cnr.isti.labsedc.Objects.FlowObjects.Events;
+package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Events;
 
 public enum EventType {
 
