@@ -16,8 +16,7 @@ public class BPMNPath {
 
     public BPMNPath(BPMNPath path, int id) {
         this.id = id;
-        flowObjects = new LinkedList<>();
-        for (FlowObject flowObject : path.getFlowObjects()) flowObjects.addLast(flowObject);
+        flowObjects = new LinkedList<>(path.getFlowObjects());
     }
 
     @Override
