@@ -1,7 +1,7 @@
 package it.cnr.isti.labsedc.bpmnpathextractor;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class BPMNProperties {
@@ -11,12 +11,11 @@ public class BPMNProperties {
     public BPMNProperties() {
 
         properties = new Properties();
+        InputStream inputStream = getClass().getResourceAsStream("/bpmnpathextractor.properties");
 
         try {
-            FileInputStream fileInputStream =
-                    new FileInputStream(System.class.getResource("/bpmnpathextractor.properties").getFile());
-            properties.load(fileInputStream);
-            fileInputStream.close();
+            properties.load(inputStream);
+            inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
