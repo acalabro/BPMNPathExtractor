@@ -36,8 +36,10 @@ public class BPMNParser {
 
     public static ArrayList<BPMNProcess> parseProcessesList(Document document) {
 
+        BPMNProperties properties = new BPMNProperties();
+
         ArrayList<BPMNProcess> processes = new ArrayList<>();
-        NodeList processesNodes = document.getElementsByTagNameNS("http://www.omg.org/spec/BPMN/20100524/MODEL", "process");
+        NodeList processesNodes = document.getElementsByTagNameNS(properties.getProperty("defaultNamespace"), "process");
 
         for (int i = 0; i < processesNodes.getLength(); i++) {
 
