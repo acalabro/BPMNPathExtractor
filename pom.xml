@@ -36,7 +36,6 @@
         </plugins>
     </build>
 
-
     <repositories>
         <repository>
             <id>Central Repository</id>

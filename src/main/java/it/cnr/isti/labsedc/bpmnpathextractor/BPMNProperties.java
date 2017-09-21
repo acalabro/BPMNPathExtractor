@@ -25,4 +25,3 @@ public class BPMNProperties {
     public String getProperty(String key) { return properties.getProperty(key); }
 
 }
-
