@@ -29,9 +29,9 @@ public class BPMNPathExtractor {
 
         while (currentOutgoingConnections.size() > 0) {
 
-            for (String connectionID : currentOutgoingConnections) {
+            for (int i = 1; i < currentOutgoingConnections.size(); i++) {
                 BPMNPath incompletePath = new BPMNPath(path, process.getPathID());
-                Connection connection = process.getConnection(connectionID);
+                Connection connection = process.getConnection(currentOutgoingConnections.get(i));
                 incompletePath.appendFlowObject(process.getFlowObject(connection.getTargetRef()));
                 incompletePaths.addLast(incompletePath);
             }
