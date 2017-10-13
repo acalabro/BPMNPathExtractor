@@ -16,6 +16,7 @@ public class BPMNProcess {
     private HashMap<String, Connection> connections;
     private ArrayList<BPMNPath> paths;
     private int pathID;
+    private int cycleID;
 
     public BPMNProcess(String id, String name, boolean executable) {
         this.id = id;
@@ -26,6 +27,7 @@ public class BPMNProcess {
         connections = new HashMap<>();
         paths = new ArrayList<>();
         pathID = 0;
+        cycleID = 0;
     }
 
     @Override
@@ -50,10 +52,8 @@ public class BPMNProcess {
         return stringBuilder.toString();
     }
 
-    public int getPathID() {
-        pathID++;
-        return (pathID - 1);
-    }
+    public int getPathID() { return pathID++; }
+    public int getCycleID() { return cycleID++; }
 
     public String getId() { return id; }
     public String getName() { return name; }

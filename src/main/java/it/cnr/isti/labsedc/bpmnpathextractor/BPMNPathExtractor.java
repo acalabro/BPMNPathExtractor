@@ -1,5 +1,6 @@
 package it.cnr.isti.labsedc.bpmnpathextractor;
 
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNCycle;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections.Connection;
@@ -29,25 +30,35 @@ public class BPMNPathExtractor {
 
         while (currentOutgoingConnections.size() > 0) {
 
+            String cycleConnection = null;
+
+            for (String connection : currentOutgoingConnections)
+                if (path.isPresentConnection(connection) && currentOutgoingConnections.size() > 1) {
+                    cycleConnection = connection;
+                    String nextObjectID = process.getConnection(connection).getTargetRef();
+                    createCycle(path, currentFlowObject, process.getFlowObject(nextObjectID), process.getCycleID());
+                    break;
+                }
+
             for (int i = 1; i < currentOutgoingConnections.size(); i++) {
                 String connectionID = currentOutgoingConnections.get(i);
-                if (path.isPresentConnection(connectionID)) continue;
-                Connection connection = process.getConnection(connectionID);
-
-                BPMNPath incompletePath = new BPMNPath(path, process.getPathID());
-                incompletePath.appendFlowObject(process.getFlowObject(connection.getTargetRef()));
-                incompletePath.addConnection(connectionID, connection);
-                incompletePaths.addLast(incompletePath);
+                if (!(cycleConnection != null && connectionID.equals(cycleConnection))) {
+                    Connection connection = process.getConnection(connectionID);
+                    BPMNPath incompletePath = new BPMNPath(path, process.getPathID());
+                    incompletePath.appendFlowObject(process.getFlowObject(connection.getTargetRef()));
+                    incompletePath.addConnection(connectionID, connection);
+                    incompletePaths.addLast(incompletePath);
+                }
             }
 
             String connectionID = currentOutgoingConnections.get(0);
-            if (path.isPresentConnection(connectionID) && currentOutgoingConnections.size() > 1) continue;
-            Connection connection = process.getConnection(connectionID);
-
-            currentFlowObject = process.getFlowObject(connection.getTargetRef());
-            path.appendFlowObject(currentFlowObject);
-            path.addConnection(connectionID, connection);
-            currentOutgoingConnections = currentFlowObject.getOutgoingConnections();
+            if (!(cycleConnection != null && connectionID.equals(cycleConnection))) {
+                Connection connection = process.getConnection(connectionID);
+                currentFlowObject = process.getFlowObject(connection.getTargetRef());
+                path.appendFlowObject(currentFlowObject);
+                path.addConnection(connectionID, connection);
+                currentOutgoingConnections = currentFlowObject.getOutgoingConnections();
+            } else currentOutgoingConnections.clear();
 
         }
 
@@ -57,6 +68,21 @@ public class BPMNPathExtractor {
         while (!incompletePaths.isEmpty()) {
             createPath(process, incompletePaths.removeLast());
         }
+
+    }
+
+    private static void createCycle(BPMNPath path, FlowObject rootObject, FlowObject firstCycleObject, int cycleID) {
+
+        BPMNCycle cycle = new BPMNCycle(cycleID, rootObject);
+        boolean inCycle = false;
+
+        for (FlowObject flowObject : path.getFlowObjects()) {
+            if (flowObject.equals(firstCycleObject) && !inCycle) inCycle = true;
+            if (inCycle) cycle.appendFlowObject(flowObject);
+            if (flowObject.equals(rootObject) && inCycle) break;
+        }
+
+        System.out.println(cycle);
 
     }
 
