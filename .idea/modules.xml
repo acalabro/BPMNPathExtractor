@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BPMN.iml" filepath="$PROJECT_DIR$/bpmn-path-extractor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BPMN.iml" filepath="$PROJECT_DIR$/BPMN.iml" />
     </modules>
   </component>
 </project>

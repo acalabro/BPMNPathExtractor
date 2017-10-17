@@ -6,9 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="BPMN" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="BPMN" target="1.8" />
       <module name="bpmn-path-extractor" target="1.8" />
     </bytecodeTargetLevel>
   </component>
