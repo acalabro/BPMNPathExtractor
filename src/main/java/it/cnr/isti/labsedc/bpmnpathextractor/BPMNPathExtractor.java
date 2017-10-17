@@ -42,32 +42,27 @@ public class BPMNPathExtractor {
                         createCycle(process, path, currentFlowObject,
                                 process.getFlowObject(nextObjectID),
                                 cycleConnection, process.getCycleID());
-                        break;
                     }
             }
 
             if (cycle != null) cycleConnection = cycle.getRootToFirst();
-            if (cycleConnection != null && cycle == null) break;
+            if (cycleConnection != null) break;
 
             for (int i = 1; i < currentOutgoingConnections.size(); i++) {
                 String connectionID = currentOutgoingConnections.get(i);
-                if (!(cycleConnection != null && connectionID.equals(cycleConnection))) {
-                    Connection connection = process.getConnection(connectionID);
-                    BPMNPath incompletePath = new BPMNPath(path, process.getPathID());
-                    incompletePath.appendFlowObject(process.getFlowObject(connection.getTargetRef()));
-                    incompletePath.addConnection(connectionID, connection);
-                    incompletePaths.addLast(incompletePath);
-                }
+                Connection connection = process.getConnection(connectionID);
+                BPMNPath incompletePath = new BPMNPath(path, process.getPathID());
+                incompletePath.appendFlowObject(process.getFlowObject(connection.getTargetRef()));
+                incompletePath.addConnection(connectionID, connection);
+                incompletePaths.addLast(incompletePath);
             }
 
             String connectionID = currentOutgoingConnections.get(0);
-            if (!(cycleConnection != null && connectionID.equals(cycleConnection))) {
-                Connection connection = process.getConnection(connectionID);
-                currentFlowObject = process.getFlowObject(connection.getTargetRef());
-                path.appendFlowObject(currentFlowObject);
-                path.addConnection(connectionID, connection);
-                currentOutgoingConnections = new ArrayList<>(currentFlowObject.getOutgoingConnections());
-            } else currentOutgoingConnections.clear();
+            Connection connection = process.getConnection(connectionID);
+            currentFlowObject = process.getFlowObject(connection.getTargetRef());
+            path.appendFlowObject(currentFlowObject);
+            path.addConnection(connectionID, connection);
+            currentOutgoingConnections = new ArrayList<>(currentFlowObject.getOutgoingConnections());
 
         }
 
