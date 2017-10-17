@@ -15,6 +15,7 @@ public class BPMNProcess {
     private HashMap<String, FlowObject> flowObjects;
     private HashMap<String, Connection> connections;
     private ArrayList<BPMNPath> paths;
+    private ArrayList<BPMNCycle> cycles;
     private int pathID;
     private int cycleID;
 
@@ -26,6 +27,7 @@ public class BPMNProcess {
         flowObjects = new HashMap<>();
         connections = new HashMap<>();
         paths = new ArrayList<>();
+        cycles = new ArrayList<>();
         pathID = 0;
         cycleID = 0;
     }
@@ -63,13 +65,20 @@ public class BPMNProcess {
     public HashMap<String, FlowObject> getFlowObjects() { return flowObjects; }
     public HashMap<String, Connection> getConnections() { return connections; }
     public ArrayList<BPMNPath> getPaths() { return paths; }
+    public ArrayList<BPMNCycle> getCycles() { return cycles; }
 
     public FlowObject getFlowObject(String id) { return flowObjects.get(id); }
     public Connection getConnection(String id) { return connections.get(id); }
+    public BPMNCycle getCycleByRoot(String id) {
+        for (BPMNCycle cycle : cycles) if (cycle.getRootObject().getId().equals(id)) return cycle;
+        return null;
+    }
 
     public void addStartEvent(String id) { startEvents.add(id); }
     public void addFlowObject(String key, FlowObject flowObject) { flowObjects.put(key, flowObject); }
     public void addConnection(String key, Connection connection) { connections.put(key, connection); }
     public void addPath(BPMNPath path) { paths.add(path); }
+    public void addCycle(BPMNCycle cycle) { cycles.add(cycle); }
+
 
 }

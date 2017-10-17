@@ -1,5 +1,6 @@
 package it.cnr.isti.labsedc.bpmnpathextractor;
 
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNCycle;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
 import org.w3c.dom.*;
@@ -26,12 +27,14 @@ public class Main {
 
         processes = BPMNParser.parseProcessesList(document);
 
-        System.out.println(processes.get(0));
-
         for (BPMNProcess process : processes) {
             BPMNPathExtractor.extractPaths(process);
+            System.out.println("Paths: " + System.lineSeparator());
             for (BPMNPath path : process.getPaths())
                 System.out.println(path);
+            System.out.println("Cycles: " + System.lineSeparator());
+            for (BPMNCycle cycle : process.getCycles())
+                System.out.println(cycle);
         }
 
     }

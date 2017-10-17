@@ -8,11 +8,13 @@ public class BPMNCycle {
 
     private final int id;
     private final FlowObject rootObject;
+    private final String rootToFirst;
     private LinkedList<FlowObject> flowObjects;
 
-    public BPMNCycle(int id, FlowObject rootObject) {
+    public BPMNCycle(int id, FlowObject rootObject, String rootToFirst) {
         this.id = id;
         this.rootObject = rootObject;
+        this.rootToFirst = rootToFirst;
         flowObjects = new LinkedList<>();
     }
 
@@ -35,7 +37,9 @@ public class BPMNCycle {
     }
 
     public int getId() { return id; }
-    public FlowObject getRootObjectID() { return rootObject; }
+    public FlowObject getRootObject() { return rootObject; }
+    public String getRootToFirst() { return rootToFirst; }
+
     public LinkedList<FlowObject> getFlowObjects() { return flowObjects; }
     public boolean isPresentFlowObject(FlowObject flowObject) { return flowObjects.contains(flowObject); }
 

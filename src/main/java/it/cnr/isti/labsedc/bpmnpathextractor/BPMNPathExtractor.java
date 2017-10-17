@@ -26,19 +26,28 @@ public class BPMNPathExtractor {
 
         LinkedList<BPMNPath> incompletePaths = new LinkedList<>();
         FlowObject currentFlowObject = process.getFlowObject(path.getLastFlowObject().getId());
-        ArrayList<String> currentOutgoingConnections = currentFlowObject.getOutgoingConnections();
+        ArrayList<String> currentOutgoingConnections = new ArrayList<>(currentFlowObject.getOutgoingConnections());
 
         while (currentOutgoingConnections.size() > 0) {
 
             String cycleConnection = null;
+            BPMNCycle cycle = null;
 
-            for (String connection : currentOutgoingConnections)
-                if (path.isPresentConnection(connection) && currentOutgoingConnections.size() > 1) {
-                    cycleConnection = connection;
-                    String nextObjectID = process.getConnection(connection).getTargetRef();
-                    createCycle(path, currentFlowObject, process.getFlowObject(nextObjectID), process.getCycleID());
-                    break;
-                }
+            if (currentOutgoingConnections.size() > 1) {
+                cycle = process.getCycleByRoot(currentFlowObject.getId());
+                for (String connection : currentOutgoingConnections)
+                    if (path.isPresentConnection(connection)) {
+                        cycleConnection = connection;
+                        String nextObjectID = process.getConnection(connection).getTargetRef();
+                        createCycle(process, path, currentFlowObject,
+                                process.getFlowObject(nextObjectID),
+                                cycleConnection, process.getCycleID());
+                        break;
+                    }
+            }
+
+            if (cycle != null) cycleConnection = cycle.getRootToFirst();
+            if (cycleConnection != null && cycle == null) break;
 
             for (int i = 1; i < currentOutgoingConnections.size(); i++) {
                 String connectionID = currentOutgoingConnections.get(i);
@@ -57,7 +66,7 @@ public class BPMNPathExtractor {
                 currentFlowObject = process.getFlowObject(connection.getTargetRef());
                 path.appendFlowObject(currentFlowObject);
                 path.addConnection(connectionID, connection);
-                currentOutgoingConnections = currentFlowObject.getOutgoingConnections();
+                currentOutgoingConnections = new ArrayList<>(currentFlowObject.getOutgoingConnections());
             } else currentOutgoingConnections.clear();
 
         }
@@ -71,9 +80,11 @@ public class BPMNPathExtractor {
 
     }
 
-    private static void createCycle(BPMNPath path, FlowObject rootObject, FlowObject firstCycleObject, int cycleID) {
+    private static void createCycle(BPMNProcess process, BPMNPath path,
+                                    FlowObject rootObject, FlowObject firstCycleObject,
+                                    String rootToFirst, int cycleID) {
 
-        BPMNCycle cycle = new BPMNCycle(cycleID, rootObject);
+        BPMNCycle cycle = new BPMNCycle(cycleID, rootObject, rootToFirst);
         boolean inCycle = false;
 
         for (FlowObject flowObject : path.getFlowObjects()) {
@@ -83,7 +94,7 @@ public class BPMNPathExtractor {
             if (flowObject.equals(rootObject) && inCycle) break;
         }
 
-        System.out.println(cycle);
+        process.addCycle(cycle);
 
     }
 
