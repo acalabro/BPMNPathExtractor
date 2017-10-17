@@ -1,8 +1,6 @@
 package it.cnr.isti.labsedc.bpmnpathextractor;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNCycle;
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.*;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections.Connection;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Events.EndEvent;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
