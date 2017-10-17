@@ -48,6 +48,7 @@ public class BPMNPath {
     public LinkedList<FlowObject> getFlowObjects() { return flowObjects; }
     public FlowObject getFirstFlowObject() { return flowObjects.getFirst(); }
     public FlowObject getLastFlowObject() { return flowObjects.getLast(); }
+    public boolean isPresentFlowObject(FlowObject flowObject) { return flowObjects.contains(flowObject); }
 
     public HashMap<String, Connection> getConnections() { return connections; }
     public void addConnection(String key, Connection connection) { connections.put(key, connection); }

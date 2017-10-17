@@ -37,6 +37,7 @@ public class BPMNCycle {
     public int getId() { return id; }
     public FlowObject getRootObjectID() { return rootObject; }
     public LinkedList<FlowObject> getFlowObjects() { return flowObjects; }
+    public boolean isPresentFlowObject(FlowObject flowObject) { return flowObjects.contains(flowObject); }
 
     public void appendFlowObject(FlowObject flowObject) { flowObjects.addLast(flowObject); }
 

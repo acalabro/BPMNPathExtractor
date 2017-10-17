@@ -26,6 +26,8 @@ public class Main {
 
         processes = BPMNParser.parseProcessesList(document);
 
+        System.out.println(processes.get(0));
+
         for (BPMNProcess process : processes) {
             BPMNPathExtractor.extractPaths(process);
             for (BPMNPath path : process.getPaths())

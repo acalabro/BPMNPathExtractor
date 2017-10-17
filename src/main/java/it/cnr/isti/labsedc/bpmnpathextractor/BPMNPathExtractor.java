@@ -77,6 +77,7 @@ public class BPMNPathExtractor {
         boolean inCycle = false;
 
         for (FlowObject flowObject : path.getFlowObjects()) {
+            if (cycle.isPresentFlowObject(flowObject)) return;
             if (flowObject.equals(firstCycleObject) && !inCycle) inCycle = true;
             if (inCycle) cycle.appendFlowObject(flowObject);
             if (flowObject.equals(rootObject) && inCycle) break;
