@@ -69,9 +69,12 @@ public class BPMNProcess {
 
     public FlowObject getFlowObject(String id) { return flowObjects.get(id); }
     public Connection getConnection(String id) { return connections.get(id); }
-    public BPMNCycle getCycleByRoot(String id) {
-        for (BPMNCycle cycle : cycles) if (cycle.getRootObject().getId().equals(id)) return cycle;
-        return null;
+    public ArrayList<BPMNCycle> getCyclesByRoot(String id) {
+        ArrayList<BPMNCycle> rootCycles = new ArrayList<>();
+        for (BPMNCycle cycle : cycles)
+            if (cycle.getRootObject().getId().equals(id))
+                rootCycles.add(cycle);
+        return rootCycles;
     }
 
     public void addStartEvent(String id) { startEvents.add(id); }

@@ -44,6 +44,7 @@ public class BPMNPath {
     public int getId() { return id; }
 
     public void appendFlowObject(FlowObject flowObject) { flowObjects.addLast(flowObject); }
+    public void addFlowObjet(int index, FlowObject flowObject) { flowObjects.add(index, flowObject); }
 
     public LinkedList<FlowObject> getFlowObjects() { return flowObjects; }
     public FlowObject getFirstFlowObject() { return flowObjects.getFirst(); }
