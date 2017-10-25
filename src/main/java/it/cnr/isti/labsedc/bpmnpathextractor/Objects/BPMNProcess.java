@@ -11,6 +11,7 @@ public class BPMNProcess {
     private final String id;
     private final String name;
     private final boolean executable;
+    private String poolID;
     private ArrayList<String> startEvents;
     private HashMap<String, FlowObject> flowObjects;
     private HashMap<String, Connection> connections;
@@ -60,6 +61,7 @@ public class BPMNProcess {
     public String getId() { return id; }
     public String getName() { return name; }
     public boolean isExecutable() { return executable; }
+    public String getPoolID() { return poolID; }
 
     public ArrayList<String> getStartEvents() { return startEvents; }
     public HashMap<String, FlowObject> getFlowObjects() { return flowObjects; }
@@ -76,6 +78,8 @@ public class BPMNProcess {
                 rootCycles.add(cycle);
         return rootCycles;
     }
+
+    public void setPoolID(String poolID) { this.poolID = poolID; }
 
     public void addStartEvent(String id) { startEvents.add(id); }
     public void addFlowObject(String key, FlowObject flowObject) { flowObjects.put(key, flowObject); }

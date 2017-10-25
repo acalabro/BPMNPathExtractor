@@ -129,6 +129,26 @@ public class BPMNParser {
 
         }
 
+        NodeList collaborationNodes = document.getElementsByTagNameNS(properties.getProperty("defaultNamespace"), "collaboration");
+        for (int i = 0; i < collaborationNodes.getLength(); i++) {
+            Node collaborationNode = collaborationNodes.item(i);
+            NodeList participants = collaborationNode.getChildNodes();
+
+            for (int j = 0; j < participants.getLength(); j++) {
+                Node participant = participants.item(j);
+                String poolID = getAttributeValue(participant, "id");
+                String processRef = getAttributeValue(participant, "processRef");
+
+                for (BPMNProcess process : processes) {
+                    if (process.getId().equals(processRef)) {
+                        process.setPoolID(poolID);
+                        break;
+                    }
+                }
+            }
+
+        }
+
         return processes;
 
     }
