@@ -33,7 +33,7 @@ public class Main {
         String response = null;
 
         while (response == null || !(response.equals("y") || response.equals("Y") || response.equals("n") || response.equals("N"))) {
-            System.out.println("Do selective extraction by pool or lane? (y/n)");
+            System.out.println("Do selective extraction by pool? (y/n)");
             response = scanner.nextLine();
         }
 
@@ -45,9 +45,12 @@ public class Main {
                 if (poolID.equals("q")) break;
                 boolean found = false;
                 for (BPMNProcess process : processes) {
-                    if (process.getPoolID().equals(poolID) && !processesToAnalyze.contains(process)) {
+                    if (process.getPoolID() != null && process.getPoolID().equals(poolID) && !processesToAnalyze.contains(process)) {
                         processesToAnalyze.add(process);
-                        System.out.println("Pool: " + process.getPoolID() + " added.");
+                        if (process.getPoolName() != null)
+                            System.out.println("Pool: " + process.getPoolName() + " added");
+                        else
+                            System.out.println("Pool: " + process.getPoolID() + " added.");
                         found = true;
                     }
                 }
@@ -58,6 +61,7 @@ public class Main {
         }
 
         for (BPMNProcess process : processesToAnalyze) {
+            System.out.println(process);
             BPMNPathExtractor.extractPaths(process);
             System.out.println("Paths: " + process.getPoolID() + System.lineSeparator());
             for (BPMNPath path : process.getPaths())

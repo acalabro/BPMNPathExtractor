@@ -45,6 +45,7 @@ public class BPMNParser {
 
             BPMNProcess process;
             Node processNode = processesNodes.item(i);
+            Node laneSet = null;
             String processID = getAttributeValue(processNode, "id");
             String processName = getAttributeValue(processNode, "name");
             String processExecutable = getAttributeValue(processNode, "isExecutable");
@@ -58,6 +59,9 @@ public class BPMNParser {
                 String localName = childNode.getLocalName();
                 if (localName == null) continue;
                 switch (localName) {
+                    case "laneSet":
+                        laneSet = childNode;
+                        break;
                     case "startEvent":
                         process.addFlowObject(nodeID, parseEvent(childNode, EventType.START_EVENT));
                         process.addStartEvent(nodeID);
@@ -125,29 +129,13 @@ public class BPMNParser {
                 }
             }
 
+            addInformationAboutLanes(process, laneSet);
+
             processes.add(process);
 
         }
 
-        NodeList collaborationNodes = document.getElementsByTagNameNS(properties.getProperty("defaultNamespace"), "collaboration");
-        for (int i = 0; i < collaborationNodes.getLength(); i++) {
-            Node collaborationNode = collaborationNodes.item(i);
-            NodeList participants = collaborationNode.getChildNodes();
-
-            for (int j = 0; j < participants.getLength(); j++) {
-                Node participant = participants.item(j);
-                String poolID = getAttributeValue(participant, "id");
-                String processRef = getAttributeValue(participant, "processRef");
-
-                for (BPMNProcess process : processes) {
-                    if (process.getId().equals(processRef)) {
-                        process.setPoolID(poolID);
-                        break;
-                    }
-                }
-            }
-
-        }
+        addInformationAboutPools(document, processes);
 
         return processes;
 
@@ -243,6 +231,64 @@ public class BPMNParser {
             }
         }
 
+    }
+
+    private static void addInformationAboutLanes(BPMNProcess process, Node laneSet) {
+
+        if (laneSet == null) return;
+        NodeList childNodes = laneSet.getChildNodes();
+
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            String localName = childNode.getLocalName();
+            if (localName == null) continue;
+            if (childNode.getLocalName().equals("lane")) {
+                String laneID = getAttributeValue(childNode, "id");
+                NodeList flowNodes = childNode.getChildNodes();
+
+                for (int j = 0; j < flowNodes.getLength(); j++) {
+                    Node flowNode = flowNodes.item(j);
+                    String nodeLocalName = flowNode.getLocalName();
+                    if (nodeLocalName == null) continue;
+                    if (nodeLocalName.equals("flowNodeRef")) {
+                        FlowObject flowObject = process.getFlowObject(flowNode.getTextContent());
+                        flowObject.addParentLane(laneID);
+                    } else if (nodeLocalName.equals("childLaneSet")) {
+                        addInformationAboutLanes(process, flowNode);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void addInformationAboutPools(Document document, ArrayList<BPMNProcess> processes) {
+
+        BPMNProperties properties = new BPMNProperties();
+
+        NodeList collaborationNodes = document.getElementsByTagNameNS(properties.getProperty("defaultNamespace"), "collaboration");
+        for (int i = 0; i < collaborationNodes.getLength(); i++) {
+            Node collaborationNode = collaborationNodes.item(i);
+            NodeList participants = collaborationNode.getChildNodes();
+
+            for (int j = 0; j < participants.getLength(); j++) {
+                Node participant = participants.item(j);
+                String localName = participant.getLocalName();
+                if (localName == null) continue;
+                if (localName.equals("participant")) {
+                    String poolID = getAttributeValue(participant, "id");
+                    String poolName = getAttributeValue(participant, "name");
+                    String processRef = getAttributeValue(participant, "processRef");
+
+                    for (BPMNProcess process : processes) {
+                        if (process.getId().equals(processRef)) {
+                            process.setPoolID(poolID);
+                            process.setPoolName(poolName);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Nullable
