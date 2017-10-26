@@ -1,8 +1,8 @@
 package it.cnr.isti.labsedc.bpmnpathextractor;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNCycle;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 import org.w3c.dom.*;
 
 import java.util.ArrayList;
@@ -60,15 +60,53 @@ public class Main {
             processesToAnalyze = processes;
         }
 
-        for (BPMNProcess process : processesToAnalyze) {
-            System.out.println(process);
+        for (BPMNProcess process : processesToAnalyze)
             BPMNPathExtractor.extractPaths(process);
+
+        response = null;
+
+        while (response == null || !(response.equals("y") || response.equals("Y") || response.equals("n") || response.equals("N"))) {
+            System.out.println("Do selective extraction by lane? (y/n)");
+            response = scanner.nextLine();
+        }
+
+        if (response.equals("y") || response.equals("Y")) {
+            System.out.println("ID of lanes to analyze, one for each row ('q' to go to next step): ");
+
+            while (true) {
+                String laneID = scanner.nextLine();
+                if (laneID.equals("q")) break;
+                boolean found = false;
+
+                for (BPMNProcess process : processesToAnalyze) {
+                    if (process.isPresentLane(laneID)) {
+                        found = true;
+                        for (BPMNPath path : process.getPaths()) {
+                            BPMNPath filteredPath = new BPMNPath(process.getPathID());
+                            for (FlowObject flowObject : path.getFlowObjects()) {
+                                if (flowObject.hasParentLane(laneID)) {
+                                    filteredPath.appendFlowObject(flowObject);
+                                }
+                            }
+                            if (filteredPath.getFlowObjects().size() > 0) process.addFilteredPath(filteredPath);
+                        }
+                    }
+                }
+
+                if (found) System.out.println("Lane " + laneID + " added");
+                else System.out.println("Wrong lane ID.");
+            }
+
+        } else {
+            for (BPMNProcess process : processes) {
+                process.setFilteredPaths(process.getPaths());
+            }
+        }
+
+        for (BPMNProcess process : processesToAnalyze) {
             System.out.println("Paths: " + process.getPoolID() + System.lineSeparator());
-            for (BPMNPath path : process.getPaths())
+            for (BPMNPath path : process.getFilteredPaths())
                 System.out.println(path);
-            System.out.println("Cycles: " + process.getPoolID() + System.lineSeparator());
-            for (BPMNCycle cycle : process.getCycles())
-                System.out.println(cycle);
         }
 
     }

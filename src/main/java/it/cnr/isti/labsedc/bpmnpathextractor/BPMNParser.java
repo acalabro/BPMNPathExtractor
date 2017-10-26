@@ -244,6 +244,7 @@ public class BPMNParser {
             if (localName == null) continue;
             if (childNode.getLocalName().equals("lane")) {
                 String laneID = getAttributeValue(childNode, "id");
+                if (!process.isPresentLane(laneID)) process.addInnerLane(laneID);
                 NodeList flowNodes = childNode.getChildNodes();
 
                 for (int j = 0; j < flowNodes.getLength(); j++) {

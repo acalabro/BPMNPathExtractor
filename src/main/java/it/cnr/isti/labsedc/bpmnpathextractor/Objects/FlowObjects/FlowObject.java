@@ -49,4 +49,6 @@ public abstract class FlowObject implements BPMNObject {
     public String getId() { return id; }
     public String getName() { return name; }
 
+    public boolean hasParentLane(String laneID) { return parentLanes.contains(laneID); }
+
 }
