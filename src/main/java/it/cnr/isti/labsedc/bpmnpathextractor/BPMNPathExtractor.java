@@ -146,7 +146,7 @@ public class BPMNPathExtractor {
             if (flowObject instanceof SubProcess) {
                 BPMNProcess subProcess = null;
                 for (BPMNProcess tempProcess : processes) {
-                    if (tempProcess.getParentObject().equals(flowObject)) {
+                    if (tempProcess.getDeepness() > 0 && tempProcess.getParentObject().equals(flowObject)) {
                         subProcess = tempProcess;
                         break;
                     }
