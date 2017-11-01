@@ -16,6 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class BPMNParser {
 
@@ -42,103 +43,108 @@ public class BPMNParser {
         NodeList processesNodes = document.getElementsByTagNameNS(properties.getProperty("defaultNamespace"), "process");
 
         for (int i = 0; i < processesNodes.getLength(); i++) {
-
-            BPMNProcess process;
-            Node processNode = processesNodes.item(i);
-            Node laneSet = null;
-            String processID = getAttributeValue(processNode, "id");
-            String processName = getAttributeValue(processNode, "name");
-            String processExecutable = getAttributeValue(processNode, "isExecutable");
-
-            process = new BPMNProcess(processID, processName, Boolean.parseBoolean(processExecutable));
-
-            NodeList processChildNodes = processNode.getChildNodes();
-            for (int j = 0; j < processChildNodes.getLength(); j++) {
-                Node childNode = processChildNodes.item(j);
-                String nodeID = getAttributeValue(childNode, "id");
-                String localName = childNode.getLocalName();
-                if (localName == null) continue;
-                switch (localName) {
-                    case "laneSet":
-                        laneSet = childNode;
-                        break;
-                    case "startEvent":
-                        process.addFlowObject(nodeID, parseEvent(childNode, EventType.START_EVENT));
-                        process.addStartEvent(nodeID);
-                        break;
-                    case "intermediateThrowEvent":
-                        process.addFlowObject(nodeID, parseEvent(childNode, EventType.INTERMEDIATE_THROW_EVENT));
-                        break;
-                    case "intermediateCatchEvent":
-                        process.addFlowObject(nodeID, parseEvent(childNode, EventType.INTERMEDIATE_CATCH_EVENT));
-                        break;
-                    case "endEvent":
-                        process.addFlowObject(nodeID, parseEvent(childNode, EventType.END_EVENT));
-                        break;
-                    case "task":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.TASK));
-                        break;
-                    case "sendTask":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.SEND_TASK));
-                        break;
-                    case "receiveTask":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.RECEIVE_TASK));
-                        break;
-                    case "userTask":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.USER_TASK));
-                        break;
-                    case "manualTask":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.MANUAL_TASK));
-                        break;
-                    case "businessRuleTask":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.BUSINESS_RULE_TASK));
-                        break;
-                    case "serviceTask":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.SERVICE_TASK));
-                        break;
-                    case "scriptTask":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.SCRIPT_TASK));
-                        break;
-                    case "callActivity":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.CALL_ACTIVITY));
-                        break;
-                    case "subProcess":
-                        process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.SUB_PROCESS));
-                        break;
-                    case "exclusiveGateway":
-                        process.addFlowObject(nodeID, parseGateway(childNode, GatewayType.EXCLUSIVE_GATEWAY));
-                        break;
-                    case "inclusiveGateway":
-                        process.addFlowObject(nodeID, parseGateway(childNode, GatewayType.INCLUSIVE_GATEWAY));
-                        break;
-                    case "complexGateway":
-                        process.addFlowObject(nodeID, parseGateway(childNode, GatewayType.COMPLEX_GATEWAY));
-                        break;
-                    case "eventBasedGateway":
-                        process.addFlowObject(nodeID, parseGateway(childNode, GatewayType.EVENT_BASED_GATEWAY));
-                        break;
-                    case "sequenceFlow":
-                        process.addConnection(nodeID, parseConnection(childNode, ConnectionType.SEQUENCE_FLOW));
-                        break;
-                    case "messageFlow":
-                        process.addConnection(nodeID, parseConnection(childNode, ConnectionType.MESSAGE_FLOW));
-                        break;
-                    case "association":
-                        process.addConnection(nodeID, parseConnection(childNode, ConnectionType.ASSOCIATION));
-                        break;
-                }
-            }
-
-            addInformationAboutLanes(process, laneSet);
-
-            processes.add(process);
-
+            processes.add(parseProcess(processesNodes.item(i), processes, null, null,0));
         }
 
+        addInformationAboutLanesInSubProcesses(processes);
         addInformationAboutPools(document, processes);
 
         return processes;
 
+    }
+
+    private static BPMNProcess parseProcess(Node processNode, ArrayList<BPMNProcess> processes, String parentProcessID, FlowObject parentObject, int deepness) {
+
+        BPMNProcess process;
+        Node laneSet = null;
+        String processID = getAttributeValue(processNode, "id");
+        String processName = getAttributeValue(processNode, "name");
+        String processExecutable = getAttributeValue(processNode, "isExecutable");
+
+        process = new BPMNProcess(processID, processName, parentProcessID, parentObject, Boolean.parseBoolean(processExecutable), deepness);
+
+        NodeList processChildNodes = processNode.getChildNodes();
+        for (int j = 0; j < processChildNodes.getLength(); j++) {
+            Node childNode = processChildNodes.item(j);
+            String nodeID = getAttributeValue(childNode, "id");
+            String localName = childNode.getLocalName();
+            if (localName == null) continue;
+            switch (localName) {
+                case "laneSet":
+                    laneSet = childNode;
+                    break;
+                case "startEvent":
+                    process.addFlowObject(nodeID, parseEvent(childNode, EventType.START_EVENT));
+                    process.addStartEvent(nodeID);
+                    break;
+                case "intermediateThrowEvent":
+                    process.addFlowObject(nodeID, parseEvent(childNode, EventType.INTERMEDIATE_THROW_EVENT));
+                    break;
+                case "intermediateCatchEvent":
+                    process.addFlowObject(nodeID, parseEvent(childNode, EventType.INTERMEDIATE_CATCH_EVENT));
+                    break;
+                case "endEvent":
+                    process.addFlowObject(nodeID, parseEvent(childNode, EventType.END_EVENT));
+                    break;
+                case "task":
+                    process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.TASK));
+                    break;
+                case "sendTask":
+                    process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.SEND_TASK));
+                    break;
+                case "receiveTask":
+                    process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.RECEIVE_TASK));
+                    break;
+                case "userTask":
+                    process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.USER_TASK));
+                    break;
+                case "manualTask":
+                    process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.MANUAL_TASK));
+                    break;
+                case "businessRuleTask":
+                    process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.BUSINESS_RULE_TASK));
+                    break;
+                case "serviceTask":
+                    process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.SERVICE_TASK));
+                    break;
+                case "scriptTask":
+                    process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.SCRIPT_TASK));
+                    break;
+                case "callActivity":
+                    process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.CALL_ACTIVITY));
+                    break;
+                case "subProcess":
+                    FlowObject subProcess = parseActivity(childNode, ActivityType.SUB_PROCESS);
+                    processes.add(parseProcess(childNode, processes, processID, subProcess, deepness + 1));
+                    process.addFlowObject(nodeID, subProcess);
+                    break;
+                case "exclusiveGateway":
+                    process.addFlowObject(nodeID, parseGateway(childNode, GatewayType.EXCLUSIVE_GATEWAY));
+                    break;
+                case "inclusiveGateway":
+                    process.addFlowObject(nodeID, parseGateway(childNode, GatewayType.INCLUSIVE_GATEWAY));
+                    break;
+                case "complexGateway":
+                    process.addFlowObject(nodeID, parseGateway(childNode, GatewayType.COMPLEX_GATEWAY));
+                    break;
+                case "eventBasedGateway":
+                    process.addFlowObject(nodeID, parseGateway(childNode, GatewayType.EVENT_BASED_GATEWAY));
+                    break;
+                case "sequenceFlow":
+                    process.addConnection(nodeID, parseConnection(childNode, ConnectionType.SEQUENCE_FLOW));
+                    break;
+                case "messageFlow":
+                    process.addConnection(nodeID, parseConnection(childNode, ConnectionType.MESSAGE_FLOW));
+                    break;
+                case "association":
+                    process.addConnection(nodeID, parseConnection(childNode, ConnectionType.ASSOCIATION));
+                    break;
+            }
+        }
+
+        addInformationAboutLanes(process, laneSet);
+
+        return process;
     }
 
     private static Event parseEvent(Node eventNode, EventType eventType) {
@@ -260,6 +266,29 @@ public class BPMNParser {
                 }
             }
         }
+    }
+
+    private static void addInformationAboutLanesInSubProcesses(ArrayList<BPMNProcess> processes) {
+
+        int deepness = 1;
+        boolean isPresentDeepness = true;
+
+        while (isPresentDeepness) {
+            isPresentDeepness = false;
+            for (BPMNProcess subProcess : processes) {
+                if (subProcess.getDeepness() == deepness) {
+                    isPresentDeepness = true;
+                    HashMap<String, FlowObject> flowObjects = subProcess.getFlowObjects();
+                    FlowObject parentObject = subProcess.getParentObject();
+                    subProcess.setInnerLanes(parentObject.getParentLanes());
+                    for (String flowObjectID : flowObjects.keySet()) {
+                        flowObjects.get(flowObjectID).setParentLanes(parentObject.getParentLanes());
+                    }
+                }
+            }
+            deepness++;
+        }
+
     }
 
     private static void addInformationAboutPools(Document document, ArrayList<BPMNProcess> processes) {

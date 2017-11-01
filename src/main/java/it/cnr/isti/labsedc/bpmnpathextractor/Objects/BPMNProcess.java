@@ -10,7 +10,10 @@ public class BPMNProcess {
 
     private final String id;
     private final String name;
+    private final String parentProcessID;
+    private final FlowObject parentObject;
     private final boolean executable;
+    private final int deepness;
     private String poolID;
     private String poolName;
     private ArrayList<String> startEvents;
@@ -23,10 +26,13 @@ public class BPMNProcess {
     private int pathID;
     private int cycleID;
 
-    public BPMNProcess(String id, String name, boolean executable) {
+    public BPMNProcess(String id, String name, String parentProcessID, FlowObject parentObject, boolean executable, int deepness) {
         this.id = id;
         this.name = name;
+        this.parentProcessID = parentProcessID;
+        this.parentObject = parentObject;
         this.executable = executable;
+        this.deepness = deepness;
         startEvents = new ArrayList<>();
         flowObjects = new HashMap<>();
         connections = new HashMap<>();
@@ -37,6 +43,7 @@ public class BPMNProcess {
         pathID = 0;
         cycleID = 0;
     }
+
 
     @Override
     public boolean equals(Object obj) {
@@ -65,7 +72,10 @@ public class BPMNProcess {
 
     public String getId() { return id; }
     public String getName() { return name; }
+    public String getParentProcessID() { return parentProcessID; }
+    public FlowObject getParentObject() { return parentObject; }
     public boolean isExecutable() { return executable; }
+    public int getDeepness() { return deepness; }
     public String getPoolID() { return poolID; }
     public String getPoolName() { return poolName; }
 
@@ -95,6 +105,7 @@ public class BPMNProcess {
     public void setPoolName(String poolName) { this.poolName = poolName; }
 
     public void setFilteredPaths(ArrayList<BPMNPath> filteredPaths) { this.filteredPaths = new ArrayList<>(filteredPaths); }
+    public void setInnerLanes(ArrayList<String> innerLanes) { this.innerLanes = new ArrayList<>(innerLanes); }
 
     public void addStartEvent(String id) { startEvents.add(id); }
     public void addFlowObject(String key, FlowObject flowObject) { flowObjects.put(key, flowObject); }

@@ -14,6 +14,8 @@ public class Main {
 
         ArrayList<BPMNProcess> processes;
         ArrayList<BPMNProcess> processesToAnalyze = new ArrayList<>();
+        BPMNPathExtractor extractor = new BPMNPathExtractor();
+        extractor.setExtractionType(ExtractionType.TYPE_ALFA);
 
         if (args.length != 1) {
             System.err.println("Wrong args number");
@@ -31,6 +33,25 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         String response = null;
+        int deepness = -1;
+
+        while (response == null || !(response.equals("y") || response.equals("Y") || response.equals("n") || response.equals("N"))) {
+            System.out.println("Do selective extraction by deepness? (y/n)");
+            response = scanner.nextLine();
+        }
+
+        if (response.equals("y") || response.equals("Y")) {
+            System.out.println("Deepness (From 0 to n)");
+            String deepnessString = scanner.nextLine();
+            deepness = Integer.parseInt(deepnessString);
+            for (BPMNProcess process : processes) {
+                if (process.getDeepness() <= deepness) processesToAnalyze.add(process);
+            }
+        } else {
+            processesToAnalyze = new ArrayList<>(processes);
+        }
+
+        response = null;
 
         while (response == null || !(response.equals("y") || response.equals("Y") || response.equals("n") || response.equals("N"))) {
             System.out.println("Do selective extraction by pool? (y/n)");
@@ -44,7 +65,7 @@ public class Main {
                 String poolID = scanner.nextLine();
                 if (poolID.equals("q")) break;
                 boolean found = false;
-                for (BPMNProcess process : processes) {
+                for (BPMNProcess process : processesToAnalyze) {
                     if (process.getPoolID() != null && process.getPoolID().equals(poolID) && !processesToAnalyze.contains(process)) {
                         processesToAnalyze.add(process);
                         if (process.getPoolName() != null)
@@ -56,12 +77,12 @@ public class Main {
                 }
                 if (!found) System.out.println("Wrong pool ID.");
             }
-        } else {
-            processesToAnalyze = processes;
         }
 
-        for (BPMNProcess process : processesToAnalyze)
-            BPMNPathExtractor.extractPaths(process);
+        for (BPMNProcess process : processesToAnalyze) {
+            extractor.extractPaths(process);
+            extractor.explodeProcessesWithSubProcesses(processesToAnalyze, deepness);
+        }
 
         response = null;
 
@@ -104,9 +125,11 @@ public class Main {
         }
 
         for (BPMNProcess process : processesToAnalyze) {
-            System.out.println("Paths: " + process.getPoolID() + System.lineSeparator());
-            for (BPMNPath path : process.getFilteredPaths())
-                System.out.println(path);
+            //if (process.getDeepness() == 0) {
+                System.out.println("Paths: " + process.getId() + System.lineSeparator());
+                for (BPMNPath path : process.getFilteredPaths())
+                    System.out.println(path);
+            //}
         }
 
     }
