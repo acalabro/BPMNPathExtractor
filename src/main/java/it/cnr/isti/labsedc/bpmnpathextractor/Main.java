@@ -125,11 +125,9 @@ public class Main {
         }
 
         for (BPMNProcess process : processesToAnalyze) {
-            //if (process.getDeepness() == 0) {
-                System.out.println("Paths: " + process.getId() + System.lineSeparator());
-                for (BPMNPath path : process.getFilteredPaths())
-                    System.out.println(path);
-            //}
+            System.out.println("Paths: " + process.getId() + System.lineSeparator());
+            for (BPMNPath path : process.getFilteredPaths())
+                System.out.println(path);
         }
 
     }
