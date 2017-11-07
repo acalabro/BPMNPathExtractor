@@ -32,6 +32,8 @@ public class BPMNParser {
 
     @Nullable
     public static Document parseXMLFromPath(String path) {
+        File xmlFile = new File(path);
+        if (!xmlFile.exists()) return null;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -45,7 +47,6 @@ public class BPMNParser {
         return null;
     }
 
-    @Nullable
     public static int parseXMLFromString(String bpmnXMLString, String bpmnName) {
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
