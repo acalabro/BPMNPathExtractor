@@ -1,24 +1,29 @@
 package it.cnr.isti.labsedc.bpmnpathextractor.RestInterface;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import it.cnr.isti.labsedc.bpmnpathextractor.BPMNParser;
 
-/**
- * Root resource (exposed at "myresource" path)
- */
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.*;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+
 @Path("/path_extractor")
 public class PathExtractorResource {
 
-    /**
-     * Method handling HTTP GET requests. The returned object will be sent
-     * to the client as "text/plain" media type.
-     *
-     * @return String that will be returned as a text/plain response.
-     */
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getIt() {
-        return "Got it!";
+    @POST
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_XML)
+    public Response postBPMN(String bpmnXMLString, @QueryParam("name") String name, @Context UriInfo uriInfo) {
+        if (name == null) return Response.status(Status.BAD_REQUEST).build();
+        int result = BPMNParser.parseXMLFromString(bpmnXMLString, name);
+        if (result == 0) {
+            URI uri = uriInfo.getAbsolutePathBuilder().path(name).build();
+            return Response.created(uri).entity(bpmnXMLString).build();
+        }
+        else return Response.status(Status.INTERNAL_SERVER_ERROR).build();
     }
 
 }

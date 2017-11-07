@@ -8,20 +8,30 @@ import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Gateways.*;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class BPMNParser {
 
+    private static BPMNProperties properties = new BPMNProperties();
+
     @Nullable
-    public static Document parseXML(String path) {
+    public static Document parseXMLFromPath(String path) {
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -33,6 +43,48 @@ public class BPMNParser {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Nullable
+    public static int parseXMLFromString(String bpmnXMLString, String bpmnName) {
+        try {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new InputSource(new StringReader(bpmnXMLString)));
+            document.getDocumentElement().normalize();
+            return saveDocumentToFile(document, bpmnName);
+        } catch (IOException | ParserConfigurationException | SAXException e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
+
+    public static int saveDocumentToFile(Document document, String bpmnName) {
+
+        String folderPath = properties.getProperty("dbFolderPath") + "/" + bpmnName;
+        File dbFolder = new File(folderPath);
+
+        boolean success;
+
+        if (dbFolder.exists() && dbFolder.isDirectory()) {
+            success = dbFolder.delete();
+            if (!success) return 1;
+        }
+
+        success = dbFolder.mkdir();
+        if (!success) return 1;
+
+        Transformer transformer;
+        try {
+            transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.transform(new DOMSource(document), new StreamResult(new File(folderPath + "/" + bpmnName +  ".xml")));
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+
     }
 
     public static ArrayList<BPMNProcess> parseProcessesList(Document document) {

@@ -22,7 +22,7 @@ public class Main {
             System.exit(1);
         }
 
-        Document document = BPMNParser.parseXML(args[0]);
+        Document document = BPMNParser.parseXMLFromPath(args[0]);
 
         if (document == null) {
             System.err.println("Error parsing xml");
