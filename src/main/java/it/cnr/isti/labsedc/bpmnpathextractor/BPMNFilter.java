@@ -56,9 +56,6 @@ public class BPMNFilter {
             extractor.explodeProcessesWithSubProcesses(processes);
         }
         if (lanesID.size() > 0) filterByLane(processes, lanesID);
-        else
-            for (BPMNProcess process : processes)
-                process.setFilteredPaths(process.getPaths());
         return processes;
 
     }
@@ -85,20 +82,15 @@ public class BPMNFilter {
     }
 
     private void filterByLane(ArrayList<BPMNProcess> processes, List<String> lanesID) {
-        for (String laneID : lanesID) {
-            for (BPMNProcess process : processes) {
-                if (process.isPresentLane(laneID)) {
-                    for (BPMNPath path : process.getPaths()) {
-                        BPMNPath filteredPath = new BPMNPath(process.getPathID());
-                        for (FlowObject flowObject : path.getFlowObjects()) {
-                            if (flowObject.hasParentLane(laneID)) {
-                                filteredPath.appendFlowObject(flowObject);
-                            }
-                        }
-                        if (filteredPath.getFlowObjects().size() > 0) process.addFilteredPath(filteredPath);
-                    }
-                }
+        for (BPMNProcess process : processes) {
+            ArrayList<BPMNPath> filteredPaths = new ArrayList<>();
+            for (BPMNPath path : process.getPaths()) {
+                BPMNPath filteredPath = new BPMNPath(process.getPathID());
+                for (FlowObject flowObject : path.getFlowObjects())
+                    if (flowObject.isAChild(lanesID)) filteredPath.appendFlowObject(flowObject);
+                if (filteredPath.getFlowObjects().size() > 0) filteredPaths.add(filteredPath);
             }
+            process.setPaths(filteredPaths);
         }
     }
 

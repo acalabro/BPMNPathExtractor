@@ -21,7 +21,6 @@ public class BPMNProcess {
     private HashMap<String, Connection> connections;
     private ArrayList<String> innerLanes;
     private ArrayList<BPMNPath> paths;
-    private ArrayList<BPMNPath> filteredPaths;
     private ArrayList<BPMNCycle> cycles;
     private int pathID;
     private int cycleID;
@@ -38,7 +37,6 @@ public class BPMNProcess {
         connections = new HashMap<>();
         innerLanes = new ArrayList<>();
         paths = new ArrayList<>();
-        filteredPaths = new ArrayList<>();
         cycles = new ArrayList<>();
         pathID = 0;
         cycleID = 0;
@@ -85,7 +83,6 @@ public class BPMNProcess {
     public ArrayList<String> getInnerLanes() { return innerLanes; }
 
     public ArrayList<BPMNPath> getPaths() { return paths; }
-    public ArrayList<BPMNPath> getFilteredPaths() { return filteredPaths; }
     public ArrayList<BPMNCycle> getCycles() { return cycles; }
 
     public FlowObject getFlowObject(String id) { return flowObjects.get(id); }
@@ -104,7 +101,7 @@ public class BPMNProcess {
     public void setPoolID(String poolID) { this.poolID = poolID; }
     public void setPoolName(String poolName) { this.poolName = poolName; }
 
-    public void setFilteredPaths(ArrayList<BPMNPath> filteredPaths) { this.filteredPaths = new ArrayList<>(filteredPaths); }
+    public void setPaths(ArrayList<BPMNPath> paths) { this.paths = new ArrayList<>(paths); }
     public void setInnerLanes(ArrayList<String> innerLanes) { this.innerLanes = new ArrayList<>(innerLanes); }
 
     public void addStartEvent(String id) { startEvents.add(id); }
@@ -112,7 +109,6 @@ public class BPMNProcess {
     public void addConnection(String key, Connection connection) { connections.put(key, connection); }
     public void addInnerLane(String laneID) { innerLanes.add(laneID); }
     public void addPath(BPMNPath path) { paths.add(path); }
-    public void addFilteredPath(BPMNPath path) { filteredPaths.add(path); }
     public void addCycle(BPMNCycle cycle) { cycles.add(cycle); }
 
     public void removePath(BPMNPath path) { paths.remove(path); }

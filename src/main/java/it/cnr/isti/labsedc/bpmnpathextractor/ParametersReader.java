@@ -87,7 +87,7 @@ public class ParametersReader {
         for (BPMNProcess process : processes) {
             if (process.getDeepness() == 0) {
                 System.out.println("Paths: " + process.getId() + System.lineSeparator());
-                for (BPMNPath path : process.getFilteredPaths())
+                for (BPMNPath path : process.getPaths())
                     System.out.println(path);
             }
         }
