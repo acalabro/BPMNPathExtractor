@@ -115,5 +115,6 @@ public class BPMNProcess {
     public void addFilteredPath(BPMNPath path) { filteredPaths.add(path); }
     public void addCycle(BPMNCycle cycle) { cycles.add(cycle); }
 
+    public void removePath(BPMNPath path) { paths.remove(path); }
 
 }

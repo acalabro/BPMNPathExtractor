@@ -6,6 +6,7 @@ import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Events.*;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Gateways.*;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
@@ -15,7 +16,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -48,12 +48,14 @@ public class BPMNParser {
     }
 
     public static int parseXMLFromString(String bpmnXMLString, String bpmnName) {
+        BPMNFilter filter = new BPMNFilter();
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(new InputSource(new StringReader(bpmnXMLString)));
             document.getDocumentElement().normalize();
+            filter.addDocumentToCache(bpmnName, document);
             return saveDocumentToFile(document, bpmnName);
         } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
@@ -61,20 +63,15 @@ public class BPMNParser {
         return 1;
     }
 
-    public static int saveDocumentToFile(Document document, String bpmnName) {
+    public static int saveDocumentToFile(Document document, String bpmnName) throws IOException {
 
         String folderPath = properties.getProperty("dbFolderPath") + "/" + bpmnName;
         File dbFolder = new File(folderPath);
 
-        boolean success;
+        if (dbFolder.exists() && dbFolder.isDirectory())
+            FileUtils.deleteDirectory(dbFolder);
 
-        if (dbFolder.exists() && dbFolder.isDirectory()) {
-            success = dbFolder.delete();
-            if (!success) return 1;
-        }
-
-        success = dbFolder.mkdir();
-        if (!success) return 1;
+        if (!dbFolder.mkdir()) return 1;
 
         Transformer transformer;
         try {

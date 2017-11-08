@@ -28,22 +28,38 @@ public class BPMNFilter {
         if (bpmnDocument == null)
             bpmnDocument = BPMNParser.parseXMLFromPath(properties.getProperty("dbFolderPath") + "/" + bpmnName + "/" + bpmnName + ".xml");
 
-        if (bpmnDocument != null) {
-            ArrayList<BPMNProcess> processes = BPMNParser.parseProcessesList(bpmnDocument);
-            if (deepness > 0) processes = filterByDeepness(processes, deepness);
-            if (poolsID.size() > 0) processes = filterByPool(processes, poolsID);
-            for (BPMNProcess process : processes) {
-                extractor.extractPaths(process);
-                extractor.explodeProcessesWithSubProcesses(processes, deepness);
-            }
-            if (lanesID.size() > 0) filterByLane(processes, lanesID);
-            else
-                for (BPMNProcess process : processes)
-                    process.setFilteredPaths(process.getPaths());
-            return processes;
-        }
+        if (bpmnDocument != null)
+            return extractPathsFromBPMNDocument(bpmnDocument, deepness, poolsID, lanesID);
 
         return null;
+
+    }
+
+    public ArrayList<BPMNProcess> extractPathsFromBPMNPath(String bpmnPath, int deepness, List<String> poolsID, List<String> lanesID) {
+
+        Document bpmnDocument = BPMNParser.parseXMLFromPath(bpmnPath);
+
+        if (bpmnDocument != null)
+            return extractPathsFromBPMNDocument(bpmnDocument, deepness, poolsID, lanesID);
+
+        return null;
+
+    }
+
+    private ArrayList<BPMNProcess> extractPathsFromBPMNDocument(Document bpmnDocument, int deepness, List<String> poolsID, List<String> lanesID) {
+
+        ArrayList<BPMNProcess> processes = BPMNParser.parseProcessesList(bpmnDocument);
+        if (deepness > -1) processes = filterByDeepness(processes, deepness);
+        if (poolsID.size() > 0) processes = filterByPool(processes, poolsID);
+        for (BPMNProcess process : processes) {
+            extractor.extractPaths(process);
+            extractor.explodeProcessesWithSubProcesses(processes);
+        }
+        if (lanesID.size() > 0) filterByLane(processes, lanesID);
+        else
+            for (BPMNProcess process : processes)
+                process.setFilteredPaths(process.getPaths());
+        return processes;
 
     }
 

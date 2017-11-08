@@ -4,6 +4,7 @@ import it.cnr.isti.labsedc.bpmnpathextractor.BPMNFilter;
 import it.cnr.isti.labsedc.bpmnpathextractor.BPMNParser;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
+import it.cnr.isti.labsedc.bpmnpathextractor.ParametersReader;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -24,16 +25,12 @@ public class PathExtractorResource {
     @Path("/{bpmnName}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPaths(@PathParam("bpmnName") String bpmnName,
-                             @QueryParam("deepness") int deepness,
+                             @DefaultValue("-1") @QueryParam("deepness") int deepness,
                              @QueryParam("poolID") List<String> poolsID,
                              @QueryParam("laneID") List<String> lanesID) {
 
         ArrayList<BPMNProcess> processes = bpmnFilter.extractPathsFromBPMNName(bpmnName, deepness, poolsID, lanesID);
-        for (BPMNProcess process : processes) {
-            System.out.println("Paths: " + process.getId() + System.lineSeparator());
-            for (BPMNPath path : process.getFilteredPaths())
-                System.out.println(path);
-        }
+        ParametersReader.printPaths(processes);
         return Response.ok().entity(processes.size()).build();
 
     }
