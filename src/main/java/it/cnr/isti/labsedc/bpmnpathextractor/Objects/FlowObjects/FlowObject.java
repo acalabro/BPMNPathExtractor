@@ -3,6 +3,7 @@ package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class FlowObject implements BPMNObject {
 
@@ -51,6 +52,10 @@ public abstract class FlowObject implements BPMNObject {
 
     public void setParentLanes(ArrayList<String> parentLanes) { this.parentLanes = new ArrayList<>(parentLanes); }
 
-    public boolean hasParentLane(String laneID) { return parentLanes.contains(laneID); }
+    public boolean isAChild(List<String> lanesID) {
+        for (String laneID : lanesID)
+            if (parentLanes.contains(laneID)) return true;
+        return false;
+    }
 
 }

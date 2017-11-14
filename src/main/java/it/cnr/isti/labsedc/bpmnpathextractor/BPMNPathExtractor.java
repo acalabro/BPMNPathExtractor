@@ -126,13 +126,15 @@ public class BPMNPathExtractor {
 
     }
 
-    public void explodeProcessesWithSubProcesses(ArrayList<BPMNProcess> processes, int deepness) {
+    public void explodeProcessesWithSubProcesses(ArrayList<BPMNProcess> processes) {
 
         for (BPMNProcess process : processes) {
             if (process.getDeepness() == 0) {
                 ArrayList<BPMNPath> paths = new ArrayList<>(process.getPaths());
-                for (BPMNPath path : paths)
+                for (BPMNPath path : paths) {
+                    process.removePath(path);
                     explodePathWithSubProcesses(processes, process, path, 0);
+                }
             }
         }
 
@@ -157,12 +159,13 @@ public class BPMNPathExtractor {
                         LinkedList<FlowObject> subProcessObjects = subProcessPath.getFlowObjects();
                         for (int j = 0; j < subProcessObjects.size(); j++)
                             incompletePath.addFlowObject(i + j + 1, subProcessObjects.get(j));
-                        process.addPath(incompletePath);
                         explodePathWithSubProcesses(processes, process, incompletePath, i + 1);
                     }
+                    return;
                 }
             }
         }
+        process.addPath(path);
 
     }
 
