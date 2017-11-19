@@ -2,9 +2,10 @@ package it.cnr.isti.labsedc.bpmnpathextractor.Objects;
 
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
-public class BPMNCycle {
+public class BPMNCycle implements Serializable {
 
     private final int id;
     private final FlowObject rootObject;

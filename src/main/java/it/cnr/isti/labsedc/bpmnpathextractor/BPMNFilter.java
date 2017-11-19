@@ -13,11 +13,12 @@ public class BPMNFilter {
 
     private HashMap<String, Document> documentCache;
     private BPMNProperties properties;
-    private BPMNPathExtractor extractor = new BPMNPathExtractor();
+    private BPMNPathExtractor extractor;
 
     public BPMNFilter() {
         documentCache = new HashMap<>();
         properties = new BPMNProperties();
+        extractor = new BPMNPathExtractor();
         extractor.setExtractionType(ExtractionType.TYPE_ALFA);
     }
 

@@ -63,7 +63,7 @@ public class BPMNParser {
         return 1;
     }
 
-    public static int saveDocumentToFile(Document document, String bpmnName) throws IOException {
+    private static int saveDocumentToFile(Document document, String bpmnName) throws IOException {
 
         String folderPath = properties.getProperty("dbFolderPath") + "/" + bpmnName;
         File dbFolder = new File(folderPath);

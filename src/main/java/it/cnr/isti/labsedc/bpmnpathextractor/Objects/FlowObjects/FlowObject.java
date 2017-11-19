@@ -2,10 +2,11 @@ package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects;
 
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class FlowObject implements BPMNObject {
+public abstract class FlowObject implements BPMNObject, Serializable {
 
     protected final String id;
     protected final String name;

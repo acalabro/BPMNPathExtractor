@@ -3,10 +3,11 @@ package it.cnr.isti.labsedc.bpmnpathextractor.Objects;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections.Connection;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BPMNProcess {
+public class BPMNProcess implements Serializable {
 
     private final String id;
     private final String name;
