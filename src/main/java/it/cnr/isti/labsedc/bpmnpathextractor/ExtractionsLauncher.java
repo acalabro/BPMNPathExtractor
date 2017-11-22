@@ -1,13 +1,11 @@
 package it.cnr.isti.labsedc.bpmnpathextractor;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -17,9 +15,11 @@ public class ExtractionsLauncher {
     public static void main(String[] args) {
 
         ExecutorService executorService = Executors.newCachedThreadPool();
+        ExtractionManager extractionManagerTask;
         ServerSocket serverSocket;
         ObjectInputStream inputStream;
         ObjectOutputStream outputStream;
+        Future taskResult;
 
         try {
             serverSocket = new ServerSocket(13500);
@@ -51,9 +51,9 @@ public class ExtractionsLauncher {
 
                 int pathType = (int) inputStream.readObject();
 
-                ExtractionManager extractionTask = new ExtractionManager(bpmnPath, deepness, poolsID, lanesID, pathType);
-                Future result = executorService.submit(extractionTask);
-                processes = (ArrayList<BPMNProcess>) result.get();
+                extractionManagerTask = new ExtractionManager(bpmnPath, deepness, poolsID, lanesID, pathType);
+                taskResult = executorService.submit(extractionManagerTask);
+                processes = (ArrayList<BPMNProcess>) taskResult.get();
 
                 processes.removeIf(process -> process.getDeepness() != 0);
 

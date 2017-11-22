@@ -1,9 +1,7 @@
 package it.cnr.isti.labsedc.bpmnpathextractor.RestInterface;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.BPMNFilter;
 import it.cnr.isti.labsedc.bpmnpathextractor.BPMNParser;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
