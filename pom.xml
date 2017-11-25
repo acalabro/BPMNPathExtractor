@@ -98,6 +98,12 @@
             <version>2.6</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.sun.faces</groupId>
+            <artifactId>jsf-api</artifactId>
+            <version>2.2.15</version>
+        </dependency>
+
     </dependencies>
 
 </project>
