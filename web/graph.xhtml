@@ -26,13 +26,13 @@
         <p:layoutUnit position="center" header="BPMN Graph" styleClass="mainLayoutUnit"/>
         <p:layoutUnit position="west" size="300" styleClass="mainLayoutUnit">
             <p:layout>
-                <p:layoutUnit position="north" header="Actions" size="60" styleClass="subLayoutUnit">
-                    <p:commandButton value="Set Activities Properties"/>
-                </p:layoutUnit>
-                <p:layoutUnit position="center" styleClass="subLayoutUnit">
+                <p:layoutUnit position="center" header="Actions" styleClass="subLayoutUnit">
+                    <p:spacer height="25"/>
+                    <p:fileUpload mode="simple" skinSimple="true" label="Upload BPMN"/>
+                    <p:button value="Set Activities Properties" outcome="properties"/>
                     <p:commandButton value="Extract Paths"/>
                 </p:layoutUnit>
-                <p:layoutUnit position="south" header="Paths List" size="730" styleClass="subLayoutUnit"/>
+                <p:layoutUnit position="south" header="Paths List" size="700" styleClass="subLayoutUnit"/>
             </p:layout>
         </p:layoutUnit>
     </p:layout>
