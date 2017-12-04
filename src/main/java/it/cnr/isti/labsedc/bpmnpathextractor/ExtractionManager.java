@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class ExtractionManager implements Callable {
+public class ExtractionManager implements Callable<Object> {
 
     private BPMNFilter filter;
     private String bpmnPath;

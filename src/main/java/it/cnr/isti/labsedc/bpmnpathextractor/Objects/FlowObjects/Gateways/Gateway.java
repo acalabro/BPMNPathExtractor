@@ -4,7 +4,11 @@ import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 public class Gateway extends FlowObject {
 
-    private final GatewayType gatewayType;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6461878604582675966L;
+	private final GatewayType gatewayType;
 
     public Gateway(String id, String name, GatewayType gatewayType) {
         super(id, name);

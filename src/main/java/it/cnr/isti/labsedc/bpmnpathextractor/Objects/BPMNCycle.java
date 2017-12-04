@@ -7,7 +7,11 @@ import java.util.LinkedList;
 
 public class BPMNCycle implements Serializable {
 
-    private final int id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1543307378291747408L;
+	private final int id;
     private final FlowObject rootObject;
     private final String rootToFirst;
     private LinkedList<FlowObject> flowObjects;

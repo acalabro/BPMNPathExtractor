@@ -9,7 +9,11 @@ import java.util.HashMap;
 
 public class BPMNProcess implements Serializable {
 
-    private final String id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6845614886589219079L;
+	private final String id;
     private final String name;
     private final String parentProcessID;
     private final FlowObject parentObject;
