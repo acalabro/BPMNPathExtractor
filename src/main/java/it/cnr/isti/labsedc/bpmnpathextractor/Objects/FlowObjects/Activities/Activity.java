@@ -4,9 +4,6 @@ import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 public class Activity extends FlowObject {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 6168150123329483949L;
 	private final ActivityType activityType;
 

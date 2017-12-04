@@ -4,9 +4,6 @@ import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 public class Event extends FlowObject {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = -8766122332897202823L;
 	private final EventType eventType;
 

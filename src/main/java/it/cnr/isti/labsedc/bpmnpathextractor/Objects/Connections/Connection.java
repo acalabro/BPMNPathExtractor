@@ -6,9 +6,6 @@ import java.io.Serializable;
 
 public class Connection implements BPMNObject, Serializable {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = -7281283768153909867L;
 	protected final String id;
     protected final String name;

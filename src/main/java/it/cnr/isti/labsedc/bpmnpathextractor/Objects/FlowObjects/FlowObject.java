@@ -8,9 +8,6 @@ import java.util.List;
 
 public abstract class FlowObject implements BPMNObject, Serializable {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 4841933402301913058L;
 	protected final String id;
     protected final String name;

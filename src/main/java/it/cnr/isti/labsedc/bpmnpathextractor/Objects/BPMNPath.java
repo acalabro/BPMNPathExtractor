@@ -9,9 +9,6 @@ import java.util.LinkedList;
 
 public class BPMNPath implements Serializable {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 5213178017509749166L;
 	private final int id;
     private LinkedList<FlowObject> flowObjects;

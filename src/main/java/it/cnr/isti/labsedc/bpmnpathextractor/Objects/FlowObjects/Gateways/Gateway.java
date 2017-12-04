@@ -4,9 +4,6 @@ import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 public class Gateway extends FlowObject {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = -6461878604582675966L;
 	private final GatewayType gatewayType;
 

@@ -22,9 +22,9 @@ public class ExtractionsLauncher {
         Future<?> taskResult;
 
         try {
-            serverSocket = new ServerSocket(13500);  
+            serverSocket = new ServerSocket(13500);
 
-        while (true) {
+            while (true) {
                 Socket clientChannel;
                 clientChannel = serverSocket.accept();
                 List<String> poolsID = new ArrayList<>();
