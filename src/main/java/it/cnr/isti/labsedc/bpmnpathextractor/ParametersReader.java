@@ -25,7 +25,7 @@ public class ParametersReader {
             String deepnessString = scanner.nextLine();
             deepness = Integer.parseInt(deepnessString);
         }
-
+        scanner.close();
         return deepness;
 
     }
@@ -52,7 +52,7 @@ public class ParametersReader {
             }
 
         }
-
+        scanner.close();
         return poolsID;
 
     }
@@ -78,7 +78,7 @@ public class ParametersReader {
             }
 
         }
-
+        scanner.close();
         return lanesID;
 
     }
