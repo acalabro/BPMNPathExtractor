@@ -19,17 +19,12 @@ public class ExtractionsLauncher {
         ServerSocket serverSocket;
         ObjectInputStream inputStream;
         ObjectOutputStream outputStream;
-        Future taskResult;
+        Future<?> taskResult;
 
         try {
-            serverSocket = new ServerSocket(13500);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+            serverSocket = new ServerSocket(13500);  
 
         while (true) {
-            try {
                 Socket clientChannel;
                 clientChannel = serverSocket.accept();
                 List<String> poolsID = new ArrayList<>();
@@ -66,10 +61,9 @@ public class ExtractionsLauncher {
                 }
 
                 outputStream.flush();
-            } catch (InterruptedException | ExecutionException | IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+        	}
+        } catch (InterruptedException | ExecutionException | IOException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
-
     }
 }

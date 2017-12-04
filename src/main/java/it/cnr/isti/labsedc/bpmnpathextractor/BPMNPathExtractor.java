@@ -29,6 +29,9 @@ public class BPMNPathExtractor {
                     explodePathWithCycles(process, pathToExplode, process.getCycles(), 0);
             }
             break;
+		default:
+			//TODO: set a default behavior
+			break;
         }
 
     }
