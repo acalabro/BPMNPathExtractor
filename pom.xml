@@ -37,6 +37,7 @@
                     </archive>
                 </configuration>
             </plugin>
+
         </plugins>
 
         <resources>

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-@SuppressWarnings("unchecked")
 public class ExtractionsLauncher {
 
     public static void main(String[] args) {
@@ -19,12 +18,17 @@ public class ExtractionsLauncher {
         ServerSocket serverSocket;
         ObjectInputStream inputStream;
         ObjectOutputStream outputStream;
-        Future<?> taskResult;
+        Future<ArrayList<BPMNProcess>> taskResult;
 
         try {
             serverSocket = new ServerSocket(13500);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
-            while (true) {
+        while (true) {
+            try {
                 Socket clientChannel;
                 clientChannel = serverSocket.accept();
                 List<String> poolsID = new ArrayList<>();
@@ -48,7 +52,7 @@ public class ExtractionsLauncher {
 
                 extractionManagerTask = new ExtractionManager(bpmnPath, deepness, poolsID, lanesID, pathType);
                 taskResult = executorService.submit(extractionManagerTask);
-                processes = (ArrayList<BPMNProcess>) taskResult.get();
+                processes = taskResult.get();
 
                 processes.removeIf(process -> process.getDeepness() != 0);
 
@@ -61,8 +65,16 @@ public class ExtractionsLauncher {
                 }
 
                 outputStream.flush();
-        	}
-        } catch (InterruptedException | ExecutionException | IOException | ClassNotFoundException e) {
+                clientChannel.close();
+            } catch (InterruptedException | ExecutionException | IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+                break;
+            }
+        }
+
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

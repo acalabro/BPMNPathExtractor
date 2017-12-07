@@ -11,11 +11,11 @@
 <h:head>
     <title>BPMN Path Extractor - Main Page</title>
     <style type="text/css">
-        .mainLayoutUnit {
+        .main-layout-unit {
             font-size: 12px;
             text-align: center;
         }
-        .subLayoutUnit {
+        .sub-layout-unit {
             border: 0;
         }
     </style>
@@ -23,11 +23,11 @@
 
 <h:body>
     <p:layout fullPage="true">
-        <p:layoutUnit position="center" header="Selected Activity" styleClass="mainLayoutUnit"/>
-        <p:layoutUnit position="west" size="300" styleClass="mainLayoutUnit">
+        <p:layoutUnit position="center" header="Selected Activity" styleClass="main-layout-unit"/>
+        <p:layoutUnit position="west" size="300" styleClass="main-layout-unit">
             <p:layout>
-                <p:layoutUnit position="north" header="Activities List" size="750" styleClass="subLayoutUnit"/>
-                <p:layoutUnit position="center" styleClass="subLayoutUnit">
+                <p:layoutUnit position="north" header="Activities List" size="750" styleClass="sub-layout-unit"/>
+                <p:layoutUnit position="center" styleClass="sub-layout-unit">
                     <p:button value="Return to Graph" outcome="graph"/>
                 </p:layoutUnit>
             </p:layout>

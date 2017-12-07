@@ -8,33 +8,52 @@
       xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
       xmlns:p="http://primefaces.org/ui">
 
-<h:head>
-    <title>BPMN Path Extractor - Main Page</title>
-    <style type="text/css">
-        .mainLayoutUnit {
-            font-size: 12px;
-            text-align: center;
-        }
-        .subLayoutUnit {
-            border: 0;
-        }
-    </style>
-</h:head>
+    <h:head>
+        <title>BPMN Path Extractor - Main Page</title>
+        <style type="text/css">
+            .main-layout-unit {
+                font-size: 12px;
+                text-align: center;
+            }
+            .sub-layout-unit {
+                border: 0;
+            }
+            .ui-diagram-element {
+                border:0.1em solid black;
+                width:14em;
+                height:4em;
+                line-height:4em;
+                text-align: center;
+            }
+            .diagram {
+                height: inherit;
+                width: inherit;
+            }
+            .ui-fileupload-content .ui-progressbar {
+                width: 0;
+                height: 0;
+                margin: 0;
+            }
+        </style>
+    </h:head>
 
-<h:body>
-    <p:layout fullPage="true">
-        <p:layoutUnit position="center" header="BPMN Graph" styleClass="mainLayoutUnit"/>
-        <p:layoutUnit position="west" size="300" styleClass="mainLayoutUnit">
-            <p:layout>
-                <p:layoutUnit position="center" header="Actions" styleClass="subLayoutUnit">
-                    <p:spacer height="25"/>
-                    <p:fileUpload mode="simple" skinSimple="true" label="Upload BPMN"/>
-                    <p:button value="Set Activities Properties" outcome="properties"/>
-                    <p:commandButton value="Extract Paths"/>
-                </p:layoutUnit>
-                <p:layoutUnit position="south" header="Paths List" size="700" styleClass="subLayoutUnit"/>
-            </p:layout>
-        </p:layoutUnit>
-    </p:layout>
-</h:body>
+    <h:body>
+        <p:layout fullPage="true">
+            <p:layoutUnit position="center" header="BPMN Graph" styleClass="main-layout-unit">
+                <p:diagram value="#{diagramView.model}" styleClass="diagram" />
+            </p:layoutUnit>
+            <p:layoutUnit position="west" size="300" styleClass="main-layout-unit">
+                <p:layout>
+                    <p:layoutUnit position="center" header="Actions" styleClass="sub-layout-unit">
+                        <h:form>
+                            <p:fileUpload fileUploadListener="#{fileUploadView.handleFileUpload}" allowTypes="/(\.|\/)(bpmn)$/"/>
+                        </h:form>
+                        <p:button value="Set Activities Properties" outcome="properties"/>
+                        <p:commandButton value="Extract Paths"/>
+                    </p:layoutUnit>
+                    <p:layoutUnit position="south" header="Paths List" size="630" styleClass="sub-layout-unit"/>
+                </p:layout>
+            </p:layoutUnit>
+        </p:layout>
+    </h:body>
 </html>

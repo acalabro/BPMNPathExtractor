@@ -48,7 +48,6 @@ public class PathExtractorResource {
                 outputStream.writeObject(laneID);
             outputStream.writeObject(1);
             int processesNumber = (int) inputStream.readObject();
-            System.out.println("ciao");
             for (int i = 0; i < processesNumber; i++) {
                 String processID = (String) inputStream.readObject();
                 ArrayList<BPMNPath> paths = (ArrayList<BPMNPath>) inputStream.readObject();
