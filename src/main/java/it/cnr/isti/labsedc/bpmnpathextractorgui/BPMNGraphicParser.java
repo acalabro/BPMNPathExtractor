@@ -1,117 +1,65 @@
-package it.cnr.isti.labsedc.bpmnpathextractor;
+package it.cnr.isti.labsedc.bpmnpathextractorgui;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections.*;
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Activities.*;
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Events.*;
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Gateways.*;
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
-import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.Nullable;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.BPMNGraphicProcess;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicConnections.*;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicActivities.*;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicEvents.*;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicFlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicGateways.*;
+import org.primefaces.model.UploadedFile;
 import org.w3c.dom.*;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.File;
+import javax.xml.parsers.*;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
-public class BPMNParser {
+public class BPMNGraphicParser {
 
     private static BPMNProperties properties = new BPMNProperties();
 
-    @Nullable
-    public static Document parseXMLFromPath(String path) {
-        File xmlFile = new File(path);
-        if (!xmlFile.exists()) return null;
+    public static Document createDocument(UploadedFile bpmnFile) {
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(new File(path));
+            Document document = documentBuilder.parse(bpmnFile.getInputstream());
             document.getDocumentElement().normalize();
             return document;
-        } catch (IOException | ParserConfigurationException | SAXException e) {
+        } catch (IOException | SAXException | ParserConfigurationException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static int parseXMLFromString(String bpmnXMLString, String bpmnName) {
-        BPMNFilter filter = new BPMNFilter();
-        try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(new InputSource(new StringReader(bpmnXMLString)));
-            document.getDocumentElement().normalize();
-            filter.addDocumentToCache(bpmnName, document);
-            return saveDocumentToFile(document, bpmnName);
-        } catch (IOException | ParserConfigurationException | SAXException e) {
-            e.printStackTrace();
-        }
-        return 1;
-    }
+    public static ArrayList<BPMNGraphicProcess> parseProcessList(Document bpmnDocument) {
 
-    private static int saveDocumentToFile(Document document, String bpmnName) throws IOException {
-
-        String folderPath = properties.getProperty("dbFolderPath") + "/" + bpmnName;
-        File dbFolder = new File(folderPath);
-
-        if (dbFolder.exists() && dbFolder.isDirectory())
-            FileUtils.deleteDirectory(dbFolder);
-
-        if (!dbFolder.mkdir()) return 1;
-
-        Transformer transformer;
-        try {
-            transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.transform(new DOMSource(document), new StreamResult(new File(folderPath + "/" + bpmnName +  ".xml")));
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
-
-        return 0;
-
-    }
-
-    public static ArrayList<BPMNProcess> parseProcessesList(Document document) {
-
-        BPMNProperties properties = new BPMNProperties();
-
-        ArrayList<BPMNProcess> processes = new ArrayList<>();
-        NodeList processesNodes = document.getElementsByTagNameNS(properties.getProperty("bpmnDefaultNamespace"), "process");
+        ArrayList<BPMNGraphicProcess> processes = new ArrayList<>();
+        NodeList processesNodes = bpmnDocument.getElementsByTagNameNS(properties.getProperty("bpmnDefaultNamespace"), "process");
 
         for (int i = 0; i < processesNodes.getLength(); i++) {
             processes.add(parseProcess(processesNodes.item(i), processes, null, null,0));
         }
 
         addInformationAboutLanesInSubProcesses(processes);
-        addInformationAboutPools(document, processes);
+        addInformationAboutPools(bpmnDocument, processes);
+        addGraphicalInformations(bpmnDocument, processes);
 
         return processes;
 
     }
 
-    private static BPMNProcess parseProcess(Node processNode, ArrayList<BPMNProcess> processes, String parentProcessID, FlowObject parentObject, int deepness) {
+    private static BPMNGraphicProcess parseProcess(Node processNode, ArrayList<BPMNGraphicProcess> processes, String parentProcessID, GraphicFlowObject parentObject, int deepness) {
 
-        BPMNProcess process;
+        BPMNGraphicProcess process;
         Node laneSet = null;
         String processID = getAttributeValue(processNode, "id");
         String processName = getAttributeValue(processNode, "name");
         String processExecutable = getAttributeValue(processNode, "isExecutable");
 
-        process = new BPMNProcess(processID, processName, parentProcessID, parentObject, Boolean.parseBoolean(processExecutable), deepness);
+        process = new BPMNGraphicProcess(processID, processName, parentProcessID, parentObject, Boolean.parseBoolean(processExecutable), deepness);
 
         NodeList processChildNodes = processNode.getChildNodes();
         for (int j = 0; j < processChildNodes.getLength(); j++) {
@@ -164,7 +112,7 @@ public class BPMNParser {
                     process.addFlowObject(nodeID, parseActivity(childNode, ActivityType.CALL_ACTIVITY));
                     break;
                 case "subProcess":
-                    FlowObject subProcess = parseActivity(childNode, ActivityType.SUB_PROCESS);
+                    GraphicFlowObject subProcess = parseActivity(childNode, ActivityType.SUB_PROCESS);
                     processes.add(parseProcess(childNode, processes, processID, subProcess, deepness + 1));
                     process.addFlowObject(nodeID, subProcess);
                     break;
@@ -197,21 +145,21 @@ public class BPMNParser {
         return process;
     }
 
-    private static Event parseEvent(Node eventNode, EventType eventType) {
+    private static GraphicEvent parseEvent(Node eventNode, EventType eventType) {
 
-        Event event;
+        GraphicEvent event;
         String eventID = getAttributeValue(eventNode, "id");
         String eventName = getAttributeValue(eventNode, "name");
 
         switch (eventType) {
             case START_EVENT:
-                event = new StartEvent(eventID, eventName, eventType);
+                event = new GraphicStartEvent(eventID, eventName, eventType);
                 break;
             case END_EVENT:
-                event = new EndEvent(eventID, eventName, eventType);
+                event = new GraphicEndEvent(eventID, eventName, eventType);
                 break;
             default:
-                event = new IntermediateEvent(eventID, eventName, eventType);
+                event = new GraphicIntermediateEvent(eventID, eventName, eventType);
                 break;
         }
 
@@ -221,18 +169,18 @@ public class BPMNParser {
 
     }
 
-    private static Activity parseActivity(Node activityNode, ActivityType activityType) {
+    private static GraphicActivity parseActivity(Node activityNode, ActivityType activityType) {
 
-        Activity activity;
+        GraphicActivity activity;
         String activityID = getAttributeValue(activityNode, "id");
         String activityName = getAttributeValue(activityNode, "name");
 
         switch (activityType) {
             case SUB_PROCESS:
-                activity = new SubProcess(activityID, activityName, activityType);
+                activity = new GraphicSubProcess(activityID, activityName, activityType);
                 break;
             default:
-                activity = new Task(activityID, activityName, activityType);
+                activity = new GraphicTask(activityID, activityName, activityType);
                 break;
         }
 
@@ -242,13 +190,13 @@ public class BPMNParser {
 
     }
 
-    private static Gateway parseGateway(Node gatewayNode, GatewayType gatewayType) {
+    private static GraphicGateway parseGateway(Node gatewayNode, GatewayType gatewayType) {
 
-        Gateway gateway;
+        GraphicGateway gateway;
         String gatewayID = getAttributeValue(gatewayNode, "id");
         String gatewayName = getAttributeValue(gatewayNode, "name");
 
-        gateway = new Gateway(gatewayID, gatewayName, gatewayType);
+        gateway = new GraphicGateway(gatewayID, gatewayName, gatewayType);
 
         addConnectionsToObject(gateway, gatewayNode);
 
@@ -256,40 +204,41 @@ public class BPMNParser {
 
     }
 
-    private static Connection parseConnection(Node connectionNode, ConnectionType connectionType) {
+    private static GraphicConnection parseConnection(Node connectionNode, ConnectionType connectionType) {
 
-        Connection connection;
+        GraphicConnection connection;
         String sourceRef = getAttributeValue(connectionNode, "sourceRef");
         String targetRef = getAttributeValue(connectionNode, "targetRef");
         String connectionID = getAttributeValue(connectionNode, "id");
         String connectionName = getAttributeValue(connectionNode, "name");
 
-        connection = new Connection(connectionID, connectionName, sourceRef, targetRef, connectionType);
+        connection = new GraphicConnection(connectionID, connectionName, sourceRef, targetRef, connectionType);
 
         return connection;
 
     }
 
-    private static void addConnectionsToObject(FlowObject object, Node objectNode) {
+    private static void addConnectionsToObject(GraphicFlowObject object, Node objectNode) {
 
         NodeList childNodes = objectNode.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node eventChildNode = childNodes.item(i);
             String localName = eventChildNode.getLocalName();
-            if (localName == null) continue;
-            switch (localName) {
-                case "incoming":
-                    object.addIncomingConnection(eventChildNode.getTextContent());
-                    break;
-                case "outgoing":
-                    object.addOutgoingConnection(eventChildNode.getTextContent());
-                    break;
+            if (localName != null) {
+                switch (localName) {
+                    case "outgoing":
+                        object.addOutgoingConnection(eventChildNode.getTextContent());
+                        break;
+                    case "incoming":
+                        object.addIncomingConnection(eventChildNode.getTextContent());
+                        break;
+                }
             }
         }
 
     }
 
-    private static void addInformationAboutLanes(BPMNProcess process, Node laneSet) {
+    private static void addInformationAboutLanes(BPMNGraphicProcess process, Node laneSet) {
 
         if (laneSet == null) return;
         NodeList childNodes = laneSet.getChildNodes();
@@ -308,7 +257,7 @@ public class BPMNParser {
                     String nodeLocalName = flowNode.getLocalName();
                     if (nodeLocalName == null) continue;
                     if (nodeLocalName.equals("flowNodeRef")) {
-                        FlowObject flowObject = process.getFlowObject(flowNode.getTextContent());
+                        GraphicFlowObject flowObject = process.getFlowObject(flowNode.getTextContent());
                         flowObject.addParentLane(laneID);
                     } else if (nodeLocalName.equals("childLaneSet")) {
                         addInformationAboutLanes(process, flowNode);
@@ -318,18 +267,18 @@ public class BPMNParser {
         }
     }
 
-    private static void addInformationAboutLanesInSubProcesses(ArrayList<BPMNProcess> processes) {
+    private static void addInformationAboutLanesInSubProcesses(ArrayList<BPMNGraphicProcess> processes) {
 
         int deepness = 1;
         boolean isPresentDeepness = true;
 
         while (isPresentDeepness) {
             isPresentDeepness = false;
-            for (BPMNProcess subProcess : processes) {
+            for (BPMNGraphicProcess subProcess : processes) {
                 if (subProcess.getDeepness() == deepness) {
                     isPresentDeepness = true;
-                    HashMap<String, FlowObject> flowObjects = subProcess.getFlowObjects();
-                    FlowObject parentObject = subProcess.getParentObject();
+                    HashMap<String, GraphicFlowObject> flowObjects = subProcess.getFlowObjects();
+                    GraphicFlowObject parentObject = subProcess.getParentObject();
                     subProcess.setInnerLanes(parentObject.getParentLanes());
                     for (String flowObjectID : flowObjects.keySet()) {
                         flowObjects.get(flowObjectID).setParentLanes(parentObject.getParentLanes());
@@ -341,7 +290,7 @@ public class BPMNParser {
 
     }
 
-    private static void addInformationAboutPools(Document document, ArrayList<BPMNProcess> processes) {
+    private static void addInformationAboutPools(Document document, ArrayList<BPMNGraphicProcess> processes) {
 
         BPMNProperties properties = new BPMNProperties();
 
@@ -359,7 +308,7 @@ public class BPMNParser {
                     String poolName = getAttributeValue(participant, "name");
                     String processRef = getAttributeValue(participant, "processRef");
 
-                    for (BPMNProcess process : processes) {
+                    for (BPMNGraphicProcess process : processes) {
                         if (process.getId().equals(processRef)) {
                             process.setPoolID(poolID);
                             process.setPoolName(poolName);
@@ -371,13 +320,42 @@ public class BPMNParser {
         }
     }
 
-    @Nullable
+    private static void addGraphicalInformations(Document document, ArrayList<BPMNGraphicProcess> processes) {
+
+        BPMNProperties properties = new BPMNProperties();
+
+        Node diagramNode = document.getElementsByTagNameNS(properties.getProperty("bpmnDiagramNamespace"), "BPMNDiagram").item(0);
+        NodeList diagramChildNodes = diagramNode.getChildNodes();
+
+        for (int i = 0; i < diagramChildNodes.getLength(); i++) {
+            Node planeNode = diagramChildNodes.item(i);
+            if (Objects.equals(planeNode.getLocalName(), "BPMNPlane")) {
+                NodeList planeChildNodes = planeNode.getChildNodes();
+                for (int j = 0; j < planeChildNodes.getLength(); j++) {
+                    Node childNode = planeChildNodes.item(j);
+                    if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+                        switch (childNode.getLocalName()) {
+                            case "BPMNShape":
+                                break;
+                            case "BPMNEdge":
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
     private static String getAttributeValue(Node node, String attributeName) {
         NamedNodeMap attributes = node.getAttributes();
-        if (attributes == null) return null;
-        Node attributeNode = attributes.getNamedItem(attributeName);
-        if (attributeNode == null) return null;
-        return attributeNode.getNodeValue();
+        Node attributeNode;
+        if (attributes != null) {
+            attributeNode = attributes.getNamedItem(attributeName);
+            if (attributeNode != null)
+                return attributeNode.getNodeValue();
+        }
+        return null;
     }
 
 }
