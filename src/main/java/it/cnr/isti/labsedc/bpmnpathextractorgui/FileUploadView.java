@@ -11,16 +11,17 @@ public class FileUploadView {
 
     private UploadedFile bpmnFile;
 
+    private ArrayList<BPMNGraphicProcess> processes;
+
     public void handleFileUpload(FileUploadEvent event) {
         bpmnFile = event.getFile();
-        ArrayList<BPMNGraphicProcess> processes;
         Document bpmnDocument = BPMNGraphicParser.createDocument(bpmnFile);
         if (bpmnDocument != null) {
             processes = BPMNGraphicParser.parseProcessList(bpmnDocument);
-            for (BPMNGraphicProcess process : processes)
-                System.out.println(process);
         }
-
     }
+
+    public UploadedFile getBpmnFile() { return bpmnFile; }
+    public ArrayList<BPMNGraphicProcess> getProcesses() { return processes; }
 
 }

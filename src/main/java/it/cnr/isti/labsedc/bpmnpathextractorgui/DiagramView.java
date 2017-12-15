@@ -1,46 +1,40 @@
 package it.cnr.isti.labsedc.bpmnpathextractorgui;
 
-import org.primefaces.model.diagram.DefaultDiagramModel;
-import org.primefaces.model.diagram.DiagramModel;
-import org.primefaces.model.diagram.Element;
-import org.primefaces.model.diagram.Connection;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.BPMNGraphicProcess;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicFlowObject;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.diagram.*;
 import org.primefaces.model.diagram.connector.FlowChartConnector;
-import org.primefaces.model.diagram.endpoint.BlankEndPoint;
-import org.primefaces.model.diagram.endpoint.EndPointAnchor;
 
-import javax.annotation.PostConstruct;
+import java.util.HashMap;
 
 public class DiagramView {
 
     private DefaultDiagramModel model;
+    private FileUploadView fileUploadView;
 
-    @PostConstruct
-    public void init() {
+    public void drawDiagram(FileUploadEvent event) {
+
+        fileUploadView.handleFileUpload(event);
         model = new DefaultDiagramModel();
         FlowChartConnector connector = new FlowChartConnector();
         connector.setPaintStyle("{strokeStyle:'#000000',lineWidth:1}");
         model.setDefaultConnector(connector);
         model.setMaxConnections(-1);
 
-        Element elementA = new Element("A", "20em", "6em");
-        elementA.addEndPoint(new BlankEndPoint(EndPointAnchor.BOTTOM));
+        for (BPMNGraphicProcess process : fileUploadView.getProcesses()) {
+            HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
+            for (String key : flowObjects.keySet()) {
+                GraphicFlowObject flowObject = flowObjects.get(key);
+                Element element = new Element(flowObject.getName(), flowObject.getPosX() + "pt", flowObject.getPosY() + 50 + "pt");
+                model.addElement(element);
+            }
+        }
 
-        Element elementB = new Element("B", "10em", "18em");
-        elementB.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
-
-        Element elementC = new Element("C", "40em", "18em");
-        elementC.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
-
-        model.addElement(elementA);
-        model.addElement(elementB);
-        model.addElement(elementC);
-
-        model.connect(new Connection(elementA.getEndPoints().get(0), elementB.getEndPoints().get(0)));
-        model.connect(new Connection(elementA.getEndPoints().get(0), elementC.getEndPoints().get(0)));
     }
 
-    public DiagramModel getModel() {
-        return model;
-    }
+    public DiagramModel getModel() { return model; }
 
+    public FileUploadView getFileUploadView() { return fileUploadView; }
+    public void setFileUploadView(FileUploadView fileUploadView) { this.fileUploadView = fileUploadView; }
 }

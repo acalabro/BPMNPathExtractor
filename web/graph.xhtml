@@ -20,9 +20,9 @@
             }
             .ui-diagram-element {
                 border:0.1em solid black;
-                width:14em;
-                height:4em;
-                line-height:4em;
+                width:8em;
+                height:5em;
+                line-height:5em;
                 text-align: center;
             }
             .diagram {
@@ -40,13 +40,13 @@
     <h:body>
         <p:layout fullPage="true">
             <p:layoutUnit position="center" header="BPMN Graph" styleClass="main-layout-unit">
-                <p:diagram value="#{diagramView.model}" styleClass="diagram" />
+                <p:diagram id="diagram" value="#{diagramView.model}" styleClass="diagram"/>
             </p:layoutUnit>
             <p:layoutUnit position="west" size="300" styleClass="main-layout-unit">
                 <p:layout>
                     <p:layoutUnit position="center" header="Actions" styleClass="sub-layout-unit">
                         <h:form>
-                            <p:fileUpload fileUploadListener="#{fileUploadView.handleFileUpload}" allowTypes="/(\.|\/)(bpmn)$/"/>
+                            <p:fileUpload fileUploadListener="#{diagramView.drawDiagram}" allowTypes="/(\.|\/)(bpmn)$/" update="diagram"/>
                         </h:form>
                         <p:button value="Set Activities Properties" outcome="properties"/>
                         <p:commandButton value="Extract Paths"/>
