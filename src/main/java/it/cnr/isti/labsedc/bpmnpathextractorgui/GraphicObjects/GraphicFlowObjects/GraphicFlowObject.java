@@ -40,6 +40,10 @@ public abstract class GraphicFlowObject implements BPMNGraphicObject {
 
         for (String laneID : parentLanes)
             stringBuilder.append(laneID).append(System.lineSeparator());
+
+        stringBuilder.append("x: ").append(posX).append(", y: ").append(posY).append(System.lineSeparator())
+                .append("width: ").append(width).append(", height ").append(height).append(System.lineSeparator());
+
         return stringBuilder.toString();
     }
 

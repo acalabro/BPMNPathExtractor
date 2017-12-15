@@ -15,8 +15,12 @@ public class FileUploadView {
         bpmnFile = event.getFile();
         ArrayList<BPMNGraphicProcess> processes;
         Document bpmnDocument = BPMNGraphicParser.createDocument(bpmnFile);
-        if (bpmnDocument != null)
-            BPMNGraphicParser.parseProcessList(bpmnDocument);
+        if (bpmnDocument != null) {
+            processes = BPMNGraphicParser.parseProcessList(bpmnDocument);
+            for (BPMNGraphicProcess process : processes)
+                System.out.println(process);
+        }
+
     }
 
 }

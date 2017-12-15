@@ -336,8 +336,41 @@ public class BPMNGraphicParser {
                     if (childNode.getNodeType() == Node.ELEMENT_NODE) {
                         switch (childNode.getLocalName()) {
                             case "BPMNShape":
+                                String flowObjectID = getAttributeValue(childNode, "bpmnElement");
+                                GraphicFlowObject flowObject = findFlowObject(processes, flowObjectID);
+                                NodeList boundsList = childNode.getChildNodes();
+                                if (flowObject != null) {
+                                    for (int t = 0; t < boundsList.getLength(); t++) {
+                                        Node boundsNode = boundsList.item(t);
+                                        if (Objects.equals(boundsNode.getLocalName(), "Bounds")) {
+                                            String x = getAttributeValue(boundsNode, "x");
+                                            String y = getAttributeValue(boundsNode, "y");
+                                            String width = getAttributeValue(boundsNode, "width");
+                                            String height = getAttributeValue(boundsNode, "height");
+                                            if (x != null) flowObject.setPosX(Integer.parseInt(x));
+                                            if (y != null) flowObject.setPosY(Integer.parseInt(y));
+                                            if (width != null) flowObject.setWidth(Integer.parseInt(width));
+                                            if (height != null) flowObject.setHeight(Integer.parseInt(height));
+                                        }
+                                    }
+                                }
                                 break;
                             case "BPMNEdge":
+                                String connectionID = getAttributeValue(childNode, "bpmnElement");
+                                GraphicConnection connection = findConnection(processes, connectionID);
+                                NodeList waypointsList = childNode.getChildNodes();
+                                if (connection != null) {
+                                    for (int t = 0; t < waypointsList.getLength(); t++) {
+                                        Node waypointNode = waypointsList.item(t);
+                                        if (Objects.equals(waypointNode.getLocalName(), "waypoint")) {
+                                            String x = getAttributeValue(waypointNode, "x");
+                                            String y = getAttributeValue(waypointNode, "y");
+                                            if (x != null && y != null)
+                                                connection.addWaypoint(Integer.parseInt(x), Integer.parseInt(y));
+                                        }
+
+                                    }
+                                }
                                 break;
                         }
                     }
@@ -356,6 +389,28 @@ public class BPMNGraphicParser {
                 return attributeNode.getNodeValue();
         }
         return null;
+    }
+
+    private static GraphicFlowObject findFlowObject(ArrayList<BPMNGraphicProcess> processes, String id) {
+
+        for (BPMNGraphicProcess process : processes) {
+            GraphicFlowObject flowObject = process.getFlowObject(id);
+            if (flowObject != null) return flowObject;
+        }
+
+        return null;
+
+    }
+
+    private static GraphicConnection findConnection(ArrayList<BPMNGraphicProcess> processes, String id) {
+
+        for (BPMNGraphicProcess process : processes) {
+            GraphicConnection connection = process.getConnection(id);
+            if (connection != null) return connection;
+        }
+
+        return null;
+
     }
 
 }
