@@ -347,10 +347,10 @@ public class BPMNGraphicParser {
                                             String y = getAttributeValue(boundsNode, "y");
                                             String width = getAttributeValue(boundsNode, "width");
                                             String height = getAttributeValue(boundsNode, "height");
-                                            if (x != null) flowObject.setPosX(Integer.parseInt(x));
-                                            if (y != null) flowObject.setPosY(Integer.parseInt(y));
-                                            if (width != null) flowObject.setWidth(Integer.parseInt(width));
-                                            if (height != null) flowObject.setHeight(Integer.parseInt(height));
+                                            if (x != null) flowObject.setPosX(Math.round(Float.parseFloat(x)));
+                                            if (y != null) flowObject.setPosY(Math.round(Float.parseFloat(y)));
+                                            if (width != null) flowObject.setWidth(Math.round(Float.parseFloat(width)));
+                                            if (height != null) flowObject.setHeight(Math.round(Float.parseFloat(height)));
                                         }
                                     }
                                 }

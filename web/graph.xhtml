@@ -18,12 +18,49 @@
             .sub-layout-unit {
                 border: 0;
             }
-            .ui-diagram-element {
-                border:0.1em solid black;
-                width:8em;
-                height:5em;
-                line-height:5em;
+            .activity {
+                border: 0.2em solid black;
+                width: 8em;
+                height: 5em;
+                line-height: 5em;
                 text-align: center;
+            }
+            .gateway {
+                border: 0.2em solid black;
+                width: 5em;
+                height: 5em;
+                line-height: 5em;
+                text-align: center;
+                background: url("../resources/gateway-cross.png") center no-repeat;
+                background-size: cover;
+                transform: rotate(45deg) translate(-2em);
+            }
+            .start-event {
+                border: 0.2em solid black;
+                width: 5em;
+                height: 5em;
+                line-height: 5em;
+                text-align: center;
+                transform: translate(-2.4em, -2.4em);
+                border-radius: 50%;
+            }
+            .intermediate-event {
+                border: 0.4em double black;
+                width: 5em;
+                height: 5em;
+                line-height: 5em;
+                text-align: center;
+                transform: translate(-2.4em, -2.4em);
+                border-radius: 50%;
+            }
+            .end-event {
+                border: 0.4em solid black;
+                width: 5em;
+                height: 5em;
+                line-height: 5em;
+                text-align: center;
+                transform: translate(-2.4em, -2.75em);
+                border-radius: 50%;
             }
             .diagram {
                 height: inherit;
