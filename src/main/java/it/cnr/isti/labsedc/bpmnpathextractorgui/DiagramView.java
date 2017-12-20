@@ -1,6 +1,7 @@
 package it.cnr.isti.labsedc.bpmnpathextractorgui;
 
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.BPMNGraphicProcess;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicConnections.GraphicConnection;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicActivities.GraphicActivity;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicEvents.GraphicEndEvent;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicEvents.GraphicIntermediateEvent;
@@ -10,10 +11,12 @@ import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObject
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.diagram.*;
 import org.primefaces.model.diagram.connector.FlowChartConnector;
+import org.primefaces.model.diagram.endpoint.BlankEndPoint;
+import org.primefaces.model.diagram.endpoint.EndPoint;
+import org.primefaces.model.diagram.endpoint.EndPointAnchor;
+import org.primefaces.model.diagram.overlay.ArrowOverlay;
+import org.primefaces.model.diagram.overlay.LabelOverlay;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class DiagramView {
@@ -31,10 +34,13 @@ public class DiagramView {
         model.setMaxConnections(-1);
 
         for (BPMNGraphicProcess process : fileUploadView.getProcesses()) {
+
             HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
             for (String key : flowObjects.keySet()) {
                 GraphicFlowObject flowObject = flowObjects.get(key);
                 Element element = new Element(flowObject.getName(), flowObject.getPosX() + "pt", flowObject.getPosY() + 50 + "pt");
+                element.setDraggable(false);
+                element.setId(flowObject.getId());
                 if (flowObject instanceof GraphicActivity)
                     element.setStyleClass("activity");
                 else if (flowObject instanceof GraphicGateway) {
@@ -49,8 +55,36 @@ public class DiagramView {
                     element.setStyleClass("end-event");
                 model.addElement(element);
             }
+
+            HashMap<String, GraphicConnection> connections = process.getConnections();
+            for (String key : connections.keySet()) {
+                GraphicConnection connection = connections.get(key);
+                String sourceRef = connection.getSourceRef();
+                String targetRef = connection.getTargetRef();
+                Element sourceElement = model.findElement(sourceRef);
+                Element targetElement = model.findElement(targetRef);
+                GraphicFlowObject sourceObject = flowObjects.get(sourceRef);
+                GraphicFlowObject targetObject = flowObjects.get(targetRef);
+
+                sourceElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
+                targetElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
+
+                model.connect(createConnection(sourceElement.getEndPoints().get(0), targetElement.getEndPoints().get(0), connection.getName()));
+            }
+
         }
 
+    }
+
+    private Connection createConnection(EndPoint from, EndPoint to, String label) {
+        Connection conn = new Connection(from, to);
+        conn.getOverlays().add(new ArrowOverlay(20, 20, 1, 1));
+
+        if(label != null) {
+            conn.getOverlays().add(new LabelOverlay(label));
+        }
+
+        return conn;
     }
 
     public DiagramModel getModel() { return model; }
