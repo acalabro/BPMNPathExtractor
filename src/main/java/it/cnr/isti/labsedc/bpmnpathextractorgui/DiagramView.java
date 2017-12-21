@@ -1,6 +1,7 @@
 package it.cnr.isti.labsedc.bpmnpathextractorgui;
 
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.BPMNGraphicProcess;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicConnections.Coordinate;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicConnections.GraphicConnection;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicActivities.GraphicActivity;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicEvents.GraphicEndEvent;
@@ -29,7 +30,7 @@ public class DiagramView {
         fileUploadView.handleFileUpload(event);
         model = new DefaultDiagramModel();
         FlowChartConnector connector = new FlowChartConnector();
-        connector.setPaintStyle("{strokeStyle:'#000000',lineWidth:1}");
+        connector.setPaintStyle("{strokeStyle:'#000000',lineWidth:2}");
         model.setDefaultConnector(connector);
         model.setMaxConnections(-1);
 
@@ -39,8 +40,6 @@ public class DiagramView {
             for (String key : flowObjects.keySet()) {
                 GraphicFlowObject flowObject = flowObjects.get(key);
                 Element element = new Element(flowObject.getName(), flowObject.getPosX() + "pt", flowObject.getPosY() + 50 + "pt");
-                element.setDraggable(false);
-                element.setId(flowObject.getId());
                 if (flowObject instanceof GraphicActivity)
                     element.setStyleClass("activity");
                 else if (flowObject instanceof GraphicGateway) {
@@ -53,6 +52,12 @@ public class DiagramView {
                     element.setStyleClass("intermediate-event");
                 else if (flowObject instanceof GraphicEndEvent)
                     element.setStyleClass("end-event");
+                element.setDraggable(false);
+                element.setId(flowObject.getId());
+                element.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
+                element.addEndPoint(new BlankEndPoint(EndPointAnchor.RIGHT));
+                element.addEndPoint(new BlankEndPoint(EndPointAnchor.BOTTOM));
+                element.addEndPoint(new BlankEndPoint(EndPointAnchor.LEFT));
                 model.addElement(element);
             }
 
@@ -66,25 +71,41 @@ public class DiagramView {
                 GraphicFlowObject sourceObject = flowObjects.get(sourceRef);
                 GraphicFlowObject targetObject = flowObjects.get(targetRef);
 
-                sourceElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
-                targetElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
+                int sourceElementAnchor = findAnchorPosition(sourceObject, connection.getWaypoints().get(0));
+                int targetElementAnchor = findAnchorPosition(targetObject, connection.getWaypoints().get(connection.getWaypoints().size() - 1));
 
-                model.connect(createConnection(sourceElement.getEndPoints().get(0), targetElement.getEndPoints().get(0), connection.getName()));
+                model.connect(createConnection(sourceElement.getEndPoints().get(sourceElementAnchor), targetElement.getEndPoints().get(targetElementAnchor)));
             }
 
         }
 
     }
 
-    private Connection createConnection(EndPoint from, EndPoint to, String label) {
-        Connection conn = new Connection(from, to);
-        conn.getOverlays().add(new ArrowOverlay(20, 20, 1, 1));
+    private Connection createConnection(EndPoint from, EndPoint to) {
+        Connection connection = new Connection(from, to);
+        connection.getOverlays().add(new ArrowOverlay(10, 10, 1, 1));
 
-        if(label != null) {
-            conn.getOverlays().add(new LabelOverlay(label));
-        }
+        // if(label != null) connection.getOverlays().add(new LabelOverlay(label));
 
-        return conn;
+        return connection;
+    }
+
+    private int findAnchorPosition(GraphicFlowObject flowObject, Coordinate coordinate) {
+
+        int flowObjectPosX = flowObject.getPosX();
+        int flowObjectPosY = flowObject.getPosY();
+        int flowObjectWidth = flowObject.getWidth();
+        int flowObjectHeight = flowObject.getHeight();
+        int connectionPosX = coordinate.getX();
+        int connectionPosY = coordinate.getY();
+
+        if (connectionPosY == flowObjectPosY) return 0;
+        else if (connectionPosX == flowObjectPosX + flowObjectWidth) return 1;
+        else if (connectionPosY == flowObjectPosY + flowObjectHeight) return 2;
+        else if (connectionPosX == flowObjectPosX) return 3;
+
+        return 0;
+
     }
 
     public DiagramModel getModel() { return model; }
