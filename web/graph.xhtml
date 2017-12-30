@@ -12,51 +12,51 @@
         <title>BPMN Path Extractor - Main Page</title>
         <style type="text/css">
             .main-layout-unit {
-                font-size: 12px;
+                font-size: 8pt;
                 text-align: center;
             }
             .sub-layout-unit {
                 border: 0;
             }
             .activity {
-                border: 0.2em solid black;
-                width: 8em;
-                height: 5em;
-                line-height: 5em;
+                border: 1.5pt solid black;
+                width: 80pt;
+                height: 50pt;
+                line-height: 50pt;
                 text-align: center;
+                border-radius: 10pt;
             }
-
             .gateway {
-                border: 0.2em solid black;
-                width: 5em;
-                height: 5em;
-                line-height: 5em;
+                border: 1.5pt solid black;
+                width: 50pt;
+                height: 50pt;
+                line-height: 50pt;
                 text-align: center;
                 background: url("../resources/gateway-cross.png") no-repeat center;
                 background-size: cover;
                 transform: rotate(45deg) scale(0.7);
             }
             .start-event {
-                border: 0.2em solid black;
-                width: 5em;
-                height: 5em;
-                line-height: 5em;
+                border: 1.5pt solid black;
+                width: 50pt;
+                height: 50pt;
+                line-height: 50pt;
                 text-align: center;
                 border-radius: 50%;
             }
             .intermediate-event {
-                border: 0.4em double black;
-                width: 5em;
-                height: 5em;
-                line-height: 5em;
+                border: 2.9pt double black;
+                width: 48pt;
+                height: 48pt;
+                line-height: 50pt;
                 text-align: center;
                 border-radius: 50%;
             }
             .end-event {
-                border: 0.4em solid black;
-                width: 5em;
-                height: 5em;
-                line-height: 5em;
+                border: 2.9pt solid black;
+                width: 48pt;
+                height: 48pt;
+                line-height: 50pt;
                 text-align: center;
                 border-radius: 50%;
             }
@@ -86,9 +86,77 @@
                         <p:button value="Set Activities Properties" outcome="properties"/>
                         <p:commandButton value="Extract Paths"/>
                     </p:layoutUnit>
-                    <p:layoutUnit position="south" header="Paths List" size="630" styleClass="sub-layout-unit"/>
+                    <p:layoutUnit position="south" size="650" header="Paths List" styleClass="sub-layout-unit"/>
                 </p:layout>
             </p:layoutUnit>
         </p:layout>
     </h:body>
+
+    <script type="text/javascript">
+        function createClass(selector, style) {
+            if (!document.styleSheets) return;
+            if (document.getElementsByTagName('head').length === 0) return;
+
+            var styleSheet,mediaType;
+
+            if (document.styleSheets.length > 0) {
+                for (var i = 0, length = document.styleSheets.length; i &lt; length; i++) {
+                    if (document.styleSheets[i].disabled)
+                        continue;
+                    var media = document.styleSheets[i].media;
+                    mediaType = typeof media;
+
+                    if (mediaType === 'string') {
+                        if (media === '' || (media.indexOf('screen') !== -1)) {
+                            styleSheet = document.styleSheets[i];
+                        }
+                    }
+                    else if (mediaType ==='object') {
+                        if (media.mediaText === '' || (media.mediaText.indexOf('screen') !== -1)) {
+                            styleSheet = document.styleSheets[i];
+                        }
+                    }
+
+                    if (typeof styleSheet !== 'undefined')
+                        break;
+                }
+            }
+
+            if (typeof styleSheet === 'undefined') {
+                var styleSheetElement = document.createElement('style');
+                styleSheetElement.type = 'text/css';
+                document.getElementsByTagName('head')[0].appendChild(styleSheetElement);
+
+                for (i = 0; i &lt; document.styleSheets.length; i++) {
+                    if (document.styleSheets[i].disabled) {
+                        continue;
+                    }
+                    styleSheet = document.styleSheets[i];
+                }
+
+                mediaType = typeof styleSheet.media;
+            }
+
+            if (mediaType === 'string') {
+                for (var i = 0, l = styleSheet.rules.length; i &lt; l; i++) {
+                    if(styleSheet.rules[i].selectorText &amp;&amp; styleSheet.rules[i].selectorText.toLowerCase() === selector.toLowerCase()) {
+                        styleSheet.rules[i].style.cssText = style;
+                        return;
+                    }
+                }
+                styleSheet.addRule(selector,style);
+            }
+            else if (mediaType === 'object') {
+                var styleSheetLength = (styleSheet.cssRules) ? styleSheet.cssRules.length : 0;
+                for (var i = 0; i &lt; styleSheetLength; i++) {
+                    if (styleSheet.cssRules[i].selectorText &amp;&amp; styleSheet.cssRules[i].selectorText.toLowerCase() === selector.toLowerCase()) {
+                        styleSheet.cssRules[i].style.cssText = style;
+                        return;
+                    }
+                }
+                styleSheet.insertRule(selector + '{' + style + '}', styleSheetLength);
+            }
+        }
+    </script>
+
 </html>

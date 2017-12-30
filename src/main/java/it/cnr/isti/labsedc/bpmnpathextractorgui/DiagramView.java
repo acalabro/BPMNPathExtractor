@@ -4,11 +4,13 @@ import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.BPMNGraphicProces
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicConnections.Coordinate;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicConnections.GraphicConnection;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicActivities.GraphicActivity;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicActivities.GraphicSubProcess;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicEvents.GraphicEndEvent;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicEvents.GraphicIntermediateEvent;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicEvents.GraphicStartEvent;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicFlowObject;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicGateways.GraphicGateway;
+import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.diagram.*;
 import org.primefaces.model.diagram.connector.FlowChartConnector;
@@ -16,7 +18,6 @@ import org.primefaces.model.diagram.endpoint.BlankEndPoint;
 import org.primefaces.model.diagram.endpoint.EndPoint;
 import org.primefaces.model.diagram.endpoint.EndPointAnchor;
 import org.primefaces.model.diagram.overlay.ArrowOverlay;
-import org.primefaces.model.diagram.overlay.LabelOverlay;
 
 import java.util.HashMap;
 
@@ -39,26 +40,52 @@ public class DiagramView {
             HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
             for (String key : flowObjects.keySet()) {
                 GraphicFlowObject flowObject = flowObjects.get(key);
-                Element element = new Element(flowObject.getName(), flowObject.getPosX() + "pt", flowObject.getPosY() + 50 + "pt");
-                if (flowObject instanceof GraphicActivity)
-                    element.setStyleClass("activity");
+                Element element = null;
+                if (flowObject instanceof GraphicActivity) {
+                    if (flowObject instanceof GraphicSubProcess) {
+                        element = new Element(flowObject.getName(), flowObject.getPosX() - 5 +  "pt", flowObject.getPosY() + 50 + "pt");
+                        RequestContext.getCurrentInstance().execute("createClass(" +
+                                "\"." + flowObject.getId() + "\", \"" +
+                                "border: 1.5pt solid black; " +
+                                "width: " + flowObject.getWidth() + "pt; " +
+                                "height: " + flowObject.getHeight() + "pt; " +
+                                "text-align: center; " +
+                                "border-radius: 10pt; " +
+                                "\")");
+                        element.setStyleClass(flowObject.getId());
+                    }
+                    else {
+                        element = new Element(flowObject.getName(), flowObject.getPosX() + 10 + "pt", flowObject.getPosY() + 65 + "pt");
+                        element.setStyleClass("activity");
+                    }
+                }
                 else if (flowObject instanceof GraphicGateway) {
-                    element.setData(null);
+                    element = new Element(null, flowObject.getPosX() + "pt", flowObject.getPosY() + 50 + "pt");
                     element.setStyleClass("gateway");
                 }
-                else if (flowObject instanceof GraphicStartEvent)
+                else if (flowObject instanceof GraphicStartEvent) {
+                    element = new Element(flowObject.getName(), flowObject.getPosX() - 7 + "pt", flowObject.getPosY() + 43 + "pt");
                     element.setStyleClass("start-event");
-                else if (flowObject instanceof GraphicIntermediateEvent)
+                }
+                else if (flowObject instanceof GraphicIntermediateEvent) {
+                    element = new Element(flowObject.getName(), flowObject.getPosX() - 7 + "pt", flowObject.getPosY() + 43 + "pt");
                     element.setStyleClass("intermediate-event");
-                else if (flowObject instanceof GraphicEndEvent)
+                }
+                else if (flowObject instanceof GraphicEndEvent) {
+                    element = new Element(flowObject.getName(), flowObject.getPosX() - 7 + "pt", flowObject.getPosY() + 43 + "pt");
                     element.setStyleClass("end-event");
-                element.setDraggable(false);
-                element.setId(flowObject.getId());
-                element.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
-                element.addEndPoint(new BlankEndPoint(EndPointAnchor.RIGHT));
-                element.addEndPoint(new BlankEndPoint(EndPointAnchor.BOTTOM));
-                element.addEndPoint(new BlankEndPoint(EndPointAnchor.LEFT));
-                model.addElement(element);
+                }
+
+                if (element != null) {
+                    element.setDraggable(false);
+                    element.setId(flowObject.getId());
+                    element.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
+                    element.addEndPoint(new BlankEndPoint(EndPointAnchor.RIGHT));
+                    element.addEndPoint(new BlankEndPoint(EndPointAnchor.BOTTOM));
+                    element.addEndPoint(new BlankEndPoint(EndPointAnchor.LEFT));
+                    model.addElement(element);
+                }
+
             }
 
             HashMap<String, GraphicConnection> connections = process.getConnections();
@@ -99,17 +126,21 @@ public class DiagramView {
         int connectionPosX = coordinate.getX();
         int connectionPosY = coordinate.getY();
 
-        if (connectionPosY == flowObjectPosY) return 0;
-        else if (connectionPosX == flowObjectPosX + flowObjectWidth) return 1;
-        else if (connectionPosY == flowObjectPosY + flowObjectHeight) return 2;
-        else if (connectionPosX == flowObjectPosX) return 3;
+        if (Math.abs(connectionPosY - flowObjectPosY) < 3) return 0;
+        else if (Math.abs(connectionPosX - flowObjectPosX - flowObjectWidth) < 3) return 1;
+        else if (Math.abs(connectionPosY - flowObjectPosY - flowObjectHeight) < 3) return 2;
+        else if (Math.abs(connectionPosX - flowObjectPosX) < 3) return 3;
+
+        System.out.println("PosX: " + flowObjectPosX + "PosY: " + flowObjectPosY);
+        System.out.println("Width: " + flowObjectWidth + "Height: " + flowObjectHeight);
+        System.out.println("ConnX: " + connectionPosX + "ConnY: " + connectionPosY);
 
         return 0;
 
     }
 
     public DiagramModel getModel() { return model; }
-
     public FileUploadView getFileUploadView() { return fileUploadView; }
+
     public void setFileUploadView(FileUploadView fileUploadView) { this.fileUploadView = fileUploadView; }
 }
