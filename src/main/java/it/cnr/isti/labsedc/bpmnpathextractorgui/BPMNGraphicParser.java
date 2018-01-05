@@ -45,7 +45,7 @@ public class BPMNGraphicParser {
 
         addInformationAboutLanesInSubProcesses(processes);
         addInformationAboutPools(bpmnDocument, processes);
-        addGraphicalInformations(bpmnDocument, processes);
+        addGraphicalInformation(bpmnDocument, processes);
 
         return processes;
 
@@ -302,8 +302,7 @@ public class BPMNGraphicParser {
             for (int j = 0; j < participants.getLength(); j++) {
                 Node participant = participants.item(j);
                 String localName = participant.getLocalName();
-                if (localName == null) continue;
-                if (localName.equals("participant")) {
+                if (Objects.equals(localName, "participant")) {
                     String poolID = getAttributeValue(participant, "id");
                     String poolName = getAttributeValue(participant, "name");
                     String processRef = getAttributeValue(participant, "processRef");
@@ -315,12 +314,21 @@ public class BPMNGraphicParser {
                             break;
                         }
                     }
+                } else if (Objects.equals(localName, "messageFlow")) {
+                    String messageFlowID = getAttributeValue(participant, "id");
+                    String sourceRef = getAttributeValue(participant, "sourceRef");
+                    String targetRef = getAttributeValue(participant, "targetRef");
+                    GraphicConnection messageFlow = new GraphicConnection(messageFlowID, null, sourceRef, targetRef, ConnectionType.MESSAGE_FLOW);
+
+                    for (BPMNGraphicProcess process : processes)
+                        if (process.getFlowObject(sourceRef) != null)
+                            process.addMessageFlow(messageFlowID, messageFlow);
                 }
             }
         }
     }
 
-    private static void addGraphicalInformations(Document document, ArrayList<BPMNGraphicProcess> processes) {
+    private static void addGraphicalInformation(Document document, ArrayList<BPMNGraphicProcess> processes) {
 
         BPMNProperties properties = new BPMNProperties();
 
@@ -351,6 +359,36 @@ public class BPMNGraphicParser {
                                             if (y != null) flowObject.setPosY(Math.round(Float.parseFloat(y)));
                                             if (width != null) flowObject.setWidth(Math.round(Float.parseFloat(width)));
                                             if (height != null) flowObject.setHeight(Math.round(Float.parseFloat(height)));
+                                        }
+                                    }
+                                } else {
+                                    for (BPMNGraphicProcess process : processes) {
+                                        if (Objects.equals(process.getPoolID(), flowObjectID)) {
+                                            for (int t = 0; t < boundsList.getLength(); t++) {
+                                                Node boundsNode = boundsList.item(t);
+                                                String x = getAttributeValue(boundsNode, "x");
+                                                String y = getAttributeValue(boundsNode, "y");
+                                                String width = getAttributeValue(boundsNode, "width");
+                                                String height = getAttributeValue(boundsNode, "height");
+                                                if (x != null) process.setPosX(Math.round(Float.parseFloat(x)));
+                                                if (y != null) process.setPosY(Math.round(Float.parseFloat(y)));
+                                                if (width != null) process.setWidth(Math.round(Float.parseFloat(width)));
+                                                if (height != null) process.setHeight(Math.round(Float.parseFloat(height)));
+                                            }
+                                        } else if (process.isPresentLane(flowObjectID)) {
+                                            for (int t = 0; t < boundsList.getLength(); t++) {
+                                                Node boundsNode = boundsList.item(t);
+                                                String x = getAttributeValue(boundsNode, "x");
+                                                String y = getAttributeValue(boundsNode, "y");
+                                                String width = getAttributeValue(boundsNode, "width");
+                                                String height = getAttributeValue(boundsNode, "height");
+                                                if (x != null && y != null && width != null && height != null)
+                                                    process.addLaneCoordinate(flowObjectID,
+                                                            Math.round(Float.parseFloat(x)),
+                                                            Math.round(Float.parseFloat(y)),
+                                                            Math.round(Float.parseFloat(width)),
+                                                            Math.round(Float.parseFloat(height)));
+                                            }
                                         }
                                     }
                                 }
@@ -406,6 +444,8 @@ public class BPMNGraphicParser {
 
         for (BPMNGraphicProcess process : processes) {
             GraphicConnection connection = process.getConnection(id);
+            if (connection != null) return connection;
+            connection = process.getMessageFlow(id);
             if (connection != null) return connection;
         }
 

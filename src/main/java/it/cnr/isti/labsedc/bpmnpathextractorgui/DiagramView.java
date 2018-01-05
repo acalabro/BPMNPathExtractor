@@ -10,9 +10,11 @@ import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObject
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicEvents.GraphicStartEvent;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicFlowObject;
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicGateways.GraphicGateway;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.LaneCoordinate;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.diagram.*;
+import org.primefaces.model.diagram.connector.Connector;
 import org.primefaces.model.diagram.connector.FlowChartConnector;
 import org.primefaces.model.diagram.endpoint.BlankEndPoint;
 import org.primefaces.model.diagram.endpoint.EndPoint;
@@ -30,12 +32,24 @@ public class DiagramView {
 
         fileUploadView.handleFileUpload(event);
         model = new DefaultDiagramModel();
-        FlowChartConnector connector = new FlowChartConnector();
-        connector.setPaintStyle("{strokeStyle:'#000000',lineWidth:2}");
-        model.setDefaultConnector(connector);
+        FlowChartConnector connectionConnector = new FlowChartConnector();
+        model.setDefaultConnector(connectionConnector);
         model.setMaxConnections(-1);
 
         for (BPMNGraphicProcess process : fileUploadView.getProcesses()) {
+
+            Element processElement = new Element(process.getPoolName(), process.getPosX() + 10 + "pt", process.getPosY() + 50 + "pt");
+            RequestContext.getCurrentInstance().execute(createScriptArgument(process.getPoolID(), process.getWidth(), process.getHeight(), 1));
+            processElement.setStyleClass(process.getPoolID());
+            processElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
+
+            for (LaneCoordinate laneCoordinate : process.getLanesCoordinates()) {
+                Element laneElement = new Element(null, laneCoordinate.getPosX() + 10 + "pt", laneCoordinate.getPosY() + 50 + "pt");
+                RequestContext.getCurrentInstance().execute(createScriptArgument(laneCoordinate.getLaneID(), laneCoordinate.getWidth(), laneCoordinate.getHeight(), 1));
+                laneElement.setStyleClass(laneCoordinate.getLaneID());
+                laneElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
+                model.addElement(laneElement);
+            }
 
             HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
             for (String key : flowObjects.keySet()) {
@@ -44,14 +58,7 @@ public class DiagramView {
                 if (flowObject instanceof GraphicActivity) {
                     if (flowObject instanceof GraphicSubProcess) {
                         element = new Element(flowObject.getName(), flowObject.getPosX() - 5 +  "pt", flowObject.getPosY() + 50 + "pt");
-                        RequestContext.getCurrentInstance().execute("createClass(" +
-                                "\"." + flowObject.getId() + "\", \"" +
-                                "border: 1.5pt solid black; " +
-                                "width: " + flowObject.getWidth() + "pt; " +
-                                "height: " + flowObject.getHeight() + "pt; " +
-                                "text-align: center; " +
-                                "border-radius: 10pt; " +
-                                "\")");
+                        RequestContext.getCurrentInstance().execute(createScriptArgument(flowObject.getId(), flowObject.getWidth(), flowObject.getHeight(), 0));
                         element.setStyleClass(flowObject.getId());
                     }
                     else {
@@ -88,6 +95,7 @@ public class DiagramView {
 
             }
 
+            connectionConnector.setPaintStyle("{strokeStyle:'#000000',lineWidth:2}");
             HashMap<String, GraphicConnection> connections = process.getConnections();
             for (String key : connections.keySet()) {
                 GraphicConnection connection = connections.get(key);
@@ -103,6 +111,34 @@ public class DiagramView {
 
                 model.connect(createConnection(sourceElement.getEndPoints().get(sourceElementAnchor), targetElement.getEndPoints().get(targetElementAnchor)));
             }
+
+            HashMap<String, GraphicConnection> messageFlows = process.getMessageFlows();
+            Connector messageFlowConnector = new FlowChartConnector();
+            messageFlowConnector.setPaintStyle("{strokeStyle:'#000000',lineWidth:2,dashstyle: \"2\"}");
+            for (String key : messageFlows.keySet()) {
+                GraphicConnection messageFlow = messageFlows.get(key);
+                String sourceRef = messageFlow.getSourceRef();
+                String targetRef = messageFlow.getTargetRef();
+                Element sourceElement = model.findElement(sourceRef);
+                Element targetElement = model.findElement(targetRef);
+                GraphicFlowObject sourceObject = flowObjects.get(sourceRef);
+                GraphicFlowObject targetObject = null;
+
+                for (BPMNGraphicProcess bpmnGraphicProcess : fileUploadView.getProcesses())
+                    if ((targetObject = bpmnGraphicProcess.getFlowObject(targetRef)) != null) break;
+
+                if (targetObject == null) continue;
+
+                int sourceElementAnchor = findAnchorPosition(sourceObject, messageFlow.getWaypoints().get(0));
+                int targetElementAnchor = findAnchorPosition(targetObject, messageFlow.getWaypoints().get(messageFlow.getWaypoints().size() - 1));
+
+                Connection connection = createConnection(sourceElement.getEndPoints().get(sourceElementAnchor), targetElement.getEndPoints().get(targetElementAnchor));
+                connection.setConnector(messageFlowConnector);
+                model.connect(connection);
+
+            }
+
+            model.addElement(processElement);
 
         }
 
@@ -131,12 +167,30 @@ public class DiagramView {
         else if (Math.abs(connectionPosY - flowObjectPosY - flowObjectHeight) < 3) return 2;
         else if (Math.abs(connectionPosX - flowObjectPosX) < 3) return 3;
 
-        System.out.println("PosX: " + flowObjectPosX + "PosY: " + flowObjectPosY);
-        System.out.println("Width: " + flowObjectWidth + "Height: " + flowObjectHeight);
-        System.out.println("ConnX: " + connectionPosX + "ConnY: " + connectionPosY);
-
         return 0;
 
+    }
+
+    private String createScriptArgument(String id, int width, int height, int type) {
+        if (type == 0) {
+            return "createClass(" +
+                    "\"." + id + "\", \"" +
+                    "border: 1.5pt solid black; " +
+                    "width: " + width + "pt; " +
+                    "height: " + height + "pt; " +
+                    "text-align: center; " +
+                    "border-radius: 10pt; " +
+                    "\")";
+        } else if (type == 1) {
+            return "createClass(" +
+                    "\"." + id + "\", \"" +
+                    "border: 1.5pt solid black; " +
+                    "width: " + width + "pt; " +
+                    "height: " + height + "pt; " +
+                    "text-align: center; " +
+                    "\")";
+        }
+        return null;
     }
 
     public DiagramModel getModel() { return model; }
