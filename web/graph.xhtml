@@ -11,13 +11,13 @@
     <h:head>
         <title>BPMN Path Extractor - Main Page</title>
         <style type="text/css">
+            body, html {
+                height: 100%;
+                margin: 0;
+            }
             .main-form {
                 font-size: 8pt;
                 text-align: center;
-            }
-            .ui-button, button.ui-button.ui-state-default,
-            .ui-button.ui-state-default.toolbar-button {
-                background-color: lightskyblue;
             }
             .activity {
                 border: 1.5pt solid black;
@@ -35,7 +35,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background: url("../resources/gateway-cross.png") no-repeat center;
+                background: url(../resources/gateway-cross.png) no-repeat center;
                 background-size: cover;
                 transform: rotate(45deg) scale(0.7);
             }
@@ -68,11 +68,12 @@
             }
             .diagram {
                 height: inherit;
-                width: inherit;
+                min-width: inherit;
+                width: 5000pt;
             }
             .ui-toolbar {
-                background-color: dodgerblue;
-                border-color: dodgerblue;
+                background: #3A4047;
+                border-color: #3A4047;
             }
             .ui-fileupload-content .ui-progressbar {
                 width: 0;
@@ -87,20 +88,56 @@
                 display: none;
             }
             .ui-fileupload-buttonbar .ui-fileupload-choose {
-                background-color: lightskyblue;
+                background: #3A4047;
+                border: none;
+                color: white;
+                text-shadow: none;
+                box-shadow: none;
             }
             .ui-fileupload-buttonbar .ui-fileupload-upload {
-                background-color: lightskyblue;
+                background: #3A4047;
+                border: none;
+                color: white;
+                text-shadow: none;
+                box-shadow: none;
             }
             .ui-fileupload-buttonbar .ui-fileupload-cancel {
-                background-color: lightskyblue;
+                background: #3A4047;
+                border: none;
+                color: white;
+                text-shadow: none;
+                box-shadow: none;
             }
             .ui-panel-grid-blank {
                 margin: 0 auto;
             }
             .ui-layout-unit-content.ui-widget-content {
                 height: 500pt;
+                background: #f9fafc;
             }
+            .ui-layout-unit-header.ui-widget-header.ui-corner-all {
+                background: #B8BFC6;
+                border-color: #B8BFC6;
+                color: #3A4047;
+                text-shadow: none;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            .ui-button, button.ui-button.ui-state-default,
+            .ui-button.ui-state-default.toolbar-button {
+                background: #3A4047;
+                border: none;
+                color: white;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-layout-resizer.ui-layout-resizer-west.ui-layout-resizer-open.ui-layout-resizer-west-open {
+                background: #f9fafc;
+            }
+            .ui-icon {
+                background-image: url(../resources/icons.png) !important;
+            }
+
         </style>
     </h:head>
 
@@ -115,7 +152,7 @@
                 <f:facet name="right">
                     <p:commandButton value="Draw Diagram" actionListener="#{diagramView.drawDiagram}" update="mainForm:diagram" icon="ui-icon-pencil"/>
                     <p:button value="Set Activities Properties" outcome="properties" icon="ui-icon-wrench"/>
-                    <p:commandButton value="Extract Paths" type="button" onclick="PF('extractPathsDialog').show();" icon="ui-icon-gear"/>
+                    <p:commandButton value="Extract Paths" type="button" onclick="PF('extractPathsDialog').show();" icon="ui-icon ui-icon-gear"/>
                 </f:facet>
 
             </p:toolbar>
@@ -145,11 +182,11 @@
 
             <p:layout>
 
-                <p:layoutUnit position="center" header="BPMN Graph">
+                <p:layoutUnit position="center" header="BPMN Graph" gutter="0">
                     <p:diagram id="diagram" value="#{diagramView.model}" styleClass="diagram"/>
                 </p:layoutUnit>
 
-                <p:layoutUnit position="west" header="Paths List" size="300">
+                <p:layoutUnit position="west" header="Paths List" size="300" gutter="0">
                 </p:layoutUnit>
 
             </p:layout>
