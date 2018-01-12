@@ -11,7 +11,9 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.*;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -27,11 +29,37 @@ public class BPMNGraphicParser {
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(bpmnFile.getInputstream());
             document.getDocumentElement().normalize();
+            uploadBPMNToServer(bpmnFile.getFileName(), bpmnFile.getInputstream());
             return document;
         } catch (IOException | SAXException | ParserConfigurationException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static String uploadBPMNToServer(String bpmnName, InputStream inputStream) throws IOException {
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1)
+            byteArrayOutputStream.write(buffer, 0, length);
+        String xmlString = byteArrayOutputStream.toString("UTF-8");
+
+        URL url = new URL("http://localhost:8080/bpmn-path-extractor/bpmn_api/path_extractor?name=" + bpmnName);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/xml");
+
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(xmlString.getBytes());
+        outputStream.flush();
+
+        connection.disconnect();
+
+        return null;
+
     }
 
     public static ArrayList<BPMNGraphicProcess> parseProcessList(Document bpmnDocument) {

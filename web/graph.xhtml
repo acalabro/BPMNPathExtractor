@@ -11,12 +11,13 @@
     <h:head>
         <title>BPMN Path Extractor - Main Page</title>
         <style type="text/css">
-            .main-layout-unit {
+            .main-form {
                 font-size: 8pt;
                 text-align: center;
             }
-            .sub-layout-unit {
-                border: 0;
+            .ui-button, button.ui-button.ui-state-default,
+            .ui-button.ui-state-default.toolbar-button {
+                background-color: lightskyblue;
             }
             .activity {
                 border: 1.5pt solid black;
@@ -69,32 +70,92 @@
                 height: inherit;
                 width: inherit;
             }
+            .ui-toolbar {
+                background-color: dodgerblue;
+                border-color: dodgerblue;
+            }
             .ui-fileupload-content .ui-progressbar {
                 width: 0;
                 height: 0;
                 margin: 0;
             }
+            .ui-fileupload-buttonbar {
+                background: transparent none;
+                border: none;
+            }
+            .ui-fileupload-content {
+                display: none;
+            }
+            .ui-fileupload-buttonbar .ui-fileupload-choose {
+                background-color: lightskyblue;
+            }
+            .ui-fileupload-buttonbar .ui-fileupload-upload {
+                background-color: lightskyblue;
+            }
+            .ui-fileupload-buttonbar .ui-fileupload-cancel {
+                background-color: lightskyblue;
+            }
+            .ui-panel-grid-blank {
+                margin: 0 auto;
+            }
+            .ui-layout-unit-content.ui-widget-content {
+                height: 500pt;
+            }
         </style>
     </h:head>
 
     <h:body>
-        <p:layout fullPage="true">
-            <p:layoutUnit position="center" header="BPMN Graph" styleClass="main-layout-unit">
-                <p:diagram id="diagram" value="#{diagramView.model}" styleClass="diagram"/>
-            </p:layoutUnit>
-            <p:layoutUnit position="west" size="300" styleClass="main-layout-unit">
-                <p:layout>
-                    <p:layoutUnit position="center" header="Actions" styleClass="sub-layout-unit">
-                        <h:form>
-                            <p:fileUpload fileUploadListener="#{diagramView.drawDiagram}" allowTypes="/(\.|\/)(bpmn)$/" update="diagram"/>
-                        </h:form>
-                        <p:button value="Set Activities Properties" outcome="properties"/>
-                        <p:commandButton value="Extract Paths"/>
-                    </p:layoutUnit>
-                    <p:layoutUnit position="south" size="650" header="Paths List" styleClass="sub-layout-unit"/>
-                </p:layout>
-            </p:layoutUnit>
-        </p:layout>
+
+        <h:form id="mainForm" styleClass="main-form">
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+                    <p:fileUpload fileUploadListener="#{diagramView.createModel}" allowTypes="/(\.|\/)(bpmn)$/" update="mainForm:name mainForm:deepness mainForm:pools mainForm:lanes"/>
+                </f:facet>
+                <f:facet name="right">
+                    <p:commandButton value="Draw Diagram" actionListener="#{diagramView.drawDiagram}" update="mainForm:diagram" icon="ui-icon-pencil"/>
+                    <p:button value="Set Activities Properties" outcome="properties" icon="ui-icon-wrench"/>
+                    <p:commandButton value="Extract Paths" type="button" onclick="PF('extractPathsDialog').show();" icon="ui-icon-gear"/>
+                </f:facet>
+
+            </p:toolbar>
+
+            <p:sticky target="toolbar"/>
+
+            <p:dialog header="Extraction Parameters" widgetVar="extractPathsDialog" resizable="false">
+
+                <p:panelGrid columns="2" cellpadding="5" styleClass="ui-panelgrid-blank">
+                    <p:outputLabel for="name" value="Name"/>
+                    <p:outputLabel id="name" value="#{checkBoxView.name}"/>
+                    <p:outputLabel for="deepness" value="Deepness"/>
+                    <p:autoComplete id="deepness" dropdown="true" value="#{checkBoxView.selectedDeepness}" completeMethod="#{checkBoxView.completeDeepnessList}"/>
+                    <p:outputLabel for="pools" value="Pools"/>
+                    <p:selectManyCheckbox id="pools" value="#{checkBoxView.selectedPools}" layout="grid" columns="3">
+                        <f:selectItems value="#{checkBoxView.pools}" var="pool" itemLabel="#{pool}" itemValue="#{pool}"/>
+                    </p:selectManyCheckbox>
+                    <p:outputLabel for="lanes" value="Lanes"/>
+                    <p:selectManyCheckbox id="lanes" value="#{checkBoxView.selectedLanes}" layout="grid" columns="3">
+                        <f:selectItems value="#{checkBoxView.lanes}" var="lane" itemLabel="#{lane}" itemValue="#{lane}"/>
+                    </p:selectManyCheckbox>
+                </p:panelGrid>
+
+                <p:commandButton value="OK" action="#{checkBoxView.sendExtractionRequest}" onclick="PF('extractPathsDialog').hide();" icon="ui-icon-check"/>
+
+            </p:dialog>
+
+            <p:layout>
+
+                <p:layoutUnit position="center" header="BPMN Graph">
+                    <p:diagram id="diagram" value="#{diagramView.model}" styleClass="diagram"/>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="west" header="Paths List" size="300">
+                </p:layoutUnit>
+
+            </p:layout>
+
+        </h:form>
+
     </h:body>
 
     <script type="text/javascript">

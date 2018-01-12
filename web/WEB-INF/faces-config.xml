@@ -13,11 +13,22 @@
             <property-class>it.cnr.isti.labsedc.bpmnpathextractorgui.FileUploadView</property-class>
             <value>#{fileUploadView}</value>
         </managed-property>
+        <managed-property>
+            <property-name>checkBoxView</property-name>
+            <property-class>it.cnr.isti.labsedc.bpmnpathextractorgui.CheckBoxView</property-class>
+            <value>#{checkBoxView}</value>
+        </managed-property>
     </managed-bean>
 
     <managed-bean>
         <managed-bean-name>fileUploadView</managed-bean-name>
         <managed-bean-class>it.cnr.isti.labsedc.bpmnpathextractorgui.FileUploadView</managed-bean-class>
+        <managed-bean-scope>view</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>checkBoxView</managed-bean-name>
+        <managed-bean-class>it.cnr.isti.labsedc.bpmnpathextractorgui.CheckBoxView</managed-bean-class>
         <managed-bean-scope>view</managed-bean-scope>
     </managed-bean>
 

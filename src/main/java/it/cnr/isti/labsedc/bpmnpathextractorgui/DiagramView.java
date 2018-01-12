@@ -27,63 +27,58 @@ public class DiagramView {
 
     private DefaultDiagramModel model;
     private FileUploadView fileUploadView;
+    private CheckBoxView checkBoxView;
 
-    public void drawDiagram(FileUploadEvent event) {
+    public void createModel(FileUploadEvent event) {
 
         fileUploadView.handleFileUpload(event);
+        checkBoxView.clearInformation();
+        checkBoxView.setName(event.getFile().getFileName());
         model = new DefaultDiagramModel();
-        FlowChartConnector connectionConnector = new FlowChartConnector();
-        model.setDefaultConnector(connectionConnector);
         model.setMaxConnections(-1);
-
+        int maxDeepness = 0;
         for (BPMNGraphicProcess process : fileUploadView.getProcesses()) {
-
+            if (process.getDeepness() > maxDeepness) maxDeepness = process.getDeepness();
+            if (process.getPoolID() != null) checkBoxView.addPool(process.getPoolID());
             Element processElement = new Element(process.getPoolName(), process.getPosX() + 10 + "pt", process.getPosY() + 50 + "pt");
             RequestContext.getCurrentInstance().execute(createScriptArgument(process.getPoolID(), process.getWidth(), process.getHeight(), 1));
             processElement.setStyleClass(process.getPoolID());
             processElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
-
+            processElement.setDraggable(false);
+            model.addElement(processElement);
             for (LaneCoordinate laneCoordinate : process.getLanesCoordinates()) {
+                checkBoxView.addLane(laneCoordinate.getLaneID());
                 Element laneElement = new Element(null, laneCoordinate.getPosX() + 10 + "pt", laneCoordinate.getPosY() + 50 + "pt");
                 RequestContext.getCurrentInstance().execute(createScriptArgument(laneCoordinate.getLaneID(), laneCoordinate.getWidth(), laneCoordinate.getHeight(), 1));
                 laneElement.setStyleClass(laneCoordinate.getLaneID());
                 laneElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
-                model.addElement(laneElement);
-            }
-
-            HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
+                laneElement.setDraggable(false);
+                model.addElement(laneElement); }HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
             for (String key : flowObjects.keySet()) {
                 GraphicFlowObject flowObject = flowObjects.get(key);
                 Element element = null;
                 if (flowObject instanceof GraphicActivity) {
                     if (flowObject instanceof GraphicSubProcess) {
-                        element = new Element(flowObject.getName(), flowObject.getPosX() - 5 +  "pt", flowObject.getPosY() + 50 + "pt");
+                        element = new Element(flowObject.getName(), flowObject.getPosX() - 5 + "pt", flowObject.getPosY() + 50 + "pt");
                         RequestContext.getCurrentInstance().execute(createScriptArgument(flowObject.getId(), flowObject.getWidth(), flowObject.getHeight(), 0));
                         element.setStyleClass(flowObject.getId());
-                    }
-                    else {
+                    } else {
                         element = new Element(flowObject.getName(), flowObject.getPosX() + 10 + "pt", flowObject.getPosY() + 65 + "pt");
                         element.setStyleClass("activity");
                     }
-                }
-                else if (flowObject instanceof GraphicGateway) {
+                } else if (flowObject instanceof GraphicGateway) {
                     element = new Element(null, flowObject.getPosX() + "pt", flowObject.getPosY() + 50 + "pt");
                     element.setStyleClass("gateway");
-                }
-                else if (flowObject instanceof GraphicStartEvent) {
+                } else if (flowObject instanceof GraphicStartEvent) {
                     element = new Element(flowObject.getName(), flowObject.getPosX() - 7 + "pt", flowObject.getPosY() + 43 + "pt");
                     element.setStyleClass("start-event");
-                }
-                else if (flowObject instanceof GraphicIntermediateEvent) {
+                } else if (flowObject instanceof GraphicIntermediateEvent) {
                     element = new Element(flowObject.getName(), flowObject.getPosX() - 7 + "pt", flowObject.getPosY() + 43 + "pt");
                     element.setStyleClass("intermediate-event");
-                }
-                else if (flowObject instanceof GraphicEndEvent) {
+                } else if (flowObject instanceof GraphicEndEvent) {
                     element = new Element(flowObject.getName(), flowObject.getPosX() - 7 + "pt", flowObject.getPosY() + 43 + "pt");
                     element.setStyleClass("end-event");
-                }
-
-                if (element != null) {
+                } if (element != null) {
                     element.setDraggable(false);
                     element.setId(flowObject.getId());
                     element.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
@@ -95,7 +90,21 @@ public class DiagramView {
 
             }
 
+        }
+
+        checkBoxView.setMaxDeepness(maxDeepness);
+
+    }
+
+    public void drawDiagram() {
+
+        FlowChartConnector connectionConnector = new FlowChartConnector();
+        model.setDefaultConnector(connectionConnector);
+
+        for (BPMNGraphicProcess process : fileUploadView.getProcesses()) {
+
             connectionConnector.setPaintStyle("{strokeStyle:'#000000',lineWidth:2}");
+            HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
             HashMap<String, GraphicConnection> connections = process.getConnections();
             for (String key : connections.keySet()) {
                 GraphicConnection connection = connections.get(key);
@@ -110,6 +119,7 @@ public class DiagramView {
                 int targetElementAnchor = findAnchorPosition(targetObject, connection.getWaypoints().get(connection.getWaypoints().size() - 1));
 
                 model.connect(createConnection(sourceElement.getEndPoints().get(sourceElementAnchor), targetElement.getEndPoints().get(targetElementAnchor)));
+
             }
 
             HashMap<String, GraphicConnection> messageFlows = process.getMessageFlows();
@@ -138,8 +148,6 @@ public class DiagramView {
 
             }
 
-            model.addElement(processElement);
-
         }
 
     }
@@ -148,12 +156,14 @@ public class DiagramView {
         Connection connection = new Connection(from, to);
         connection.getOverlays().add(new ArrowOverlay(10, 10, 1, 1));
 
-        // if(label != null) connection.getOverlays().add(new LabelOverlay(label));
+        //if(label != null) connection.getOverlays().add(new LabelOverlay(label));
 
         return connection;
     }
 
     private int findAnchorPosition(GraphicFlowObject flowObject, Coordinate coordinate) {
+
+        int anchorPosition = 0;
 
         int flowObjectPosX = flowObject.getPosX();
         int flowObjectPosY = flowObject.getPosY();
@@ -162,12 +172,12 @@ public class DiagramView {
         int connectionPosX = coordinate.getX();
         int connectionPosY = coordinate.getY();
 
-        if (Math.abs(connectionPosY - flowObjectPosY) < 3) return 0;
-        else if (Math.abs(connectionPosX - flowObjectPosX - flowObjectWidth) < 3) return 1;
-        else if (Math.abs(connectionPosY - flowObjectPosY - flowObjectHeight) < 3) return 2;
-        else if (Math.abs(connectionPosX - flowObjectPosX) < 3) return 3;
+        if (Math.abs(connectionPosY - flowObjectPosY) < 3) anchorPosition = 0;
+        else if (Math.abs(connectionPosX - flowObjectPosX - flowObjectWidth) < 3) anchorPosition = 1;
+        else if (Math.abs(connectionPosY - flowObjectPosY - flowObjectHeight) < 3) anchorPosition = 2;
+        else if (Math.abs(connectionPosX - flowObjectPosX) < 3) anchorPosition = 3;
 
-        return 0;
+        return anchorPosition;
 
     }
 
@@ -194,7 +204,8 @@ public class DiagramView {
     }
 
     public DiagramModel getModel() { return model; }
-    public FileUploadView getFileUploadView() { return fileUploadView; }
 
     public void setFileUploadView(FileUploadView fileUploadView) { this.fileUploadView = fileUploadView; }
+    public void setCheckBoxView(CheckBoxView checkBoxView) { this.checkBoxView = checkBoxView; }
+
 }
