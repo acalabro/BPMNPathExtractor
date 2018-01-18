@@ -2,6 +2,7 @@ package it.cnr.isti.labsedc.bpmnpathextractor.RestInterface;
 
 import it.cnr.isti.labsedc.bpmnpathextractor.BPMNParser;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
+import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -13,16 +14,11 @@ import java.io.*;
 import java.net.Socket;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
 @Path("/path_extractor")
 public class PathExtractorResource {
-
-    private Socket serverChannel;
-    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
 
     @GET
     @Path("/{bpmnName}")
@@ -32,12 +28,11 @@ public class PathExtractorResource {
                              @QueryParam("poolID") List<String> poolsID,
                              @QueryParam("laneID") List<String> lanesID) {
 
-        HashMap<String, ArrayList<BPMNPath>> processesPaths = new HashMap<>();
-
         try {
-            serverChannel = new Socket("localhost", 13500);
-            inputStream = new ObjectInputStream(serverChannel.getInputStream());
-            outputStream = new ObjectOutputStream(serverChannel.getOutputStream());
+
+            Socket serverChannel = new Socket("localhost", 13500);
+            ObjectInputStream inputStream = new ObjectInputStream(serverChannel.getInputStream());
+            ObjectOutputStream outputStream = new ObjectOutputStream(serverChannel.getOutputStream());
             outputStream.writeObject(bpmnName);
             outputStream.writeObject(deepness);
             outputStream.writeObject(poolsID.size());
@@ -48,24 +43,36 @@ public class PathExtractorResource {
                 outputStream.writeObject(laneID);
             outputStream.writeObject(1);
             int processesNumber = (int) inputStream.readObject();
+
+            ArrayList<JSONProcess> processes = new ArrayList<>();
+
             for (int i = 0; i < processesNumber; i++) {
+
                 String processID = (String) inputStream.readObject();
-                ArrayList<BPMNPath> paths = (ArrayList<BPMNPath>) inputStream.readObject();
-                processesPaths.put(processID, paths);
+                ArrayList<BPMNPath> bpmnPaths = (ArrayList<BPMNPath>) inputStream.readObject();
+
+                JSONProcess process = new JSONProcess(processID);
+
+                for (BPMNPath bpmnPath : bpmnPaths) {
+
+                    ArrayList<String> path = new ArrayList<>();
+
+                    for (FlowObject flowObject : bpmnPath.getFlowObjects())
+                        path.add(flowObject.getId());
+
+                    process.addPath(path);
+
+                }
+
+                processes.add(process);
+
             }
+
+            return Response.ok().entity(processes).build();
 
         } catch (IOException | ClassNotFoundException e) {
             return Response.serverError().build();
         }
-
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String processID : processesPaths.keySet()) {
-            stringBuilder.append(processID).append(System.lineSeparator()).append(System.lineSeparator());
-            for (BPMNPath path : processesPaths.get(processID))
-                stringBuilder.append(path.toString()).append(System.lineSeparator());
-        }
-
-        return Response.ok().entity(stringBuilder.toString()).build();
 
     }
 

@@ -21,17 +21,17 @@ public class BPMNPathExtractor {
         switch (extractionType) {
             case TYPE_ALFA:
                 for (String startEventID : process.getStartEvents()) {
-                BPMNPath path = new BPMNPath(process.getPathID());
-                path.appendFlowObject(process.getFlowObject(startEventID));
-                createPath(process, path);
-                ArrayList<BPMNPath> paths = new ArrayList<>(process.getPaths());
-                for (BPMNPath pathToExplode : paths)
-                    explodePathWithCycles(process, pathToExplode, process.getCycles(), 0);
-            }
-            break;
-		default:
-			//TODO: set a default behavior
-			break;
+                    BPMNPath path = new BPMNPath(process.getPathID());
+                    path.appendFlowObject(process.getFlowObject(startEventID));
+                    createPath(process, path);
+                    ArrayList<BPMNPath> paths = new ArrayList<>(process.getPaths());
+                    for (BPMNPath pathToExplode : paths)
+                        explodePathWithCycles(process, pathToExplode, process.getCycles(), 0);
+                }
+                break;
+		    default:
+			    //TODO: set a default behavior
+			    break;
         }
 
     }
@@ -130,7 +130,6 @@ public class BPMNPathExtractor {
     }
 
     public void explodeProcessesWithSubProcesses(ArrayList<BPMNProcess> processes) {
-
         for (BPMNProcess process : processes) {
             if (process.getDeepness() == 0) {
                 ArrayList<BPMNPath> paths = new ArrayList<>(process.getPaths());

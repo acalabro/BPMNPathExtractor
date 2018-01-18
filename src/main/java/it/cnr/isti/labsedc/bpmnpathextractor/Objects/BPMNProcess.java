@@ -21,6 +21,7 @@ public class BPMNProcess implements Serializable {
     private ArrayList<String> startEvents;
     private HashMap<String, FlowObject> flowObjects;
     private HashMap<String, Connection> connections;
+    private ArrayList<BPMNProcess> childrenProcesses;
     private ArrayList<String> innerLanes;
     private ArrayList<BPMNPath> paths;
     private ArrayList<BPMNCycle> cycles;
@@ -37,6 +38,7 @@ public class BPMNProcess implements Serializable {
         startEvents = new ArrayList<>();
         flowObjects = new HashMap<>();
         connections = new HashMap<>();
+        childrenProcesses = new ArrayList<>();
         innerLanes = new ArrayList<>();
         paths = new ArrayList<>();
         cycles = new ArrayList<>();
@@ -82,6 +84,7 @@ public class BPMNProcess implements Serializable {
     public ArrayList<String> getStartEvents() { return startEvents; }
     public HashMap<String, FlowObject> getFlowObjects() { return flowObjects; }
     public HashMap<String, Connection> getConnections() { return connections; }
+    public ArrayList<BPMNProcess> getChildrenProcesses() { return childrenProcesses; }
     public ArrayList<String> getInnerLanes() { return innerLanes; }
 
     public ArrayList<BPMNPath> getPaths() { return paths; }
@@ -109,6 +112,7 @@ public class BPMNProcess implements Serializable {
     public void addStartEvent(String id) { startEvents.add(id); }
     public void addFlowObject(String key, FlowObject flowObject) { flowObjects.put(key, flowObject); }
     public void addConnection(String key, Connection connection) { connections.put(key, connection); }
+    public void addChildProcess(BPMNProcess childProcess) { childrenProcesses.add(childProcess); }
     public void addInnerLane(String laneID) { innerLanes.add(laneID); }
     public void addPath(BPMNPath path) { paths.add(path); }
     public void addCycle(BPMNCycle cycle) { cycles.add(cycle); }

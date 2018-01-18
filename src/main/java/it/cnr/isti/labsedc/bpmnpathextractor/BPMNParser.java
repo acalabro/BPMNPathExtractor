@@ -165,7 +165,9 @@ public class BPMNParser {
                     break;
                 case "subProcess":
                     FlowObject subProcess = parseActivity(childNode, ActivityType.SUB_PROCESS);
-                    processes.add(parseProcess(childNode, processes, processID, subProcess, deepness + 1));
+                    BPMNProcess childProcess = parseProcess(childNode, processes, processID, subProcess, deepness + 1);
+                    processes.add(childProcess);
+                    process.addChildProcess(childProcess);
                     process.addFlowObject(nodeID, subProcess);
                     break;
                 case "exclusiveGateway":

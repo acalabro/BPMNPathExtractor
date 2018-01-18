@@ -50,12 +50,13 @@ public class BPMNFilter {
     private ArrayList<BPMNProcess> extractPathsFromBPMNDocument(Document bpmnDocument, int deepness, List<String> poolsID, List<String> lanesID) {
 
         ArrayList<BPMNProcess> processes = BPMNParser.parseProcessesList(bpmnDocument);
-        if (deepness > -1) processes = filterByDeepness(processes, deepness);
         if (poolsID.size() > 0) processes = filterByPool(processes, poolsID);
+        if (deepness > -1) processes = filterByDeepness(processes, deepness);
         for (BPMNProcess process : processes) {
             extractor.extractPaths(process);
-            extractor.explodeProcessesWithSubProcesses(processes);
         }
+        extractor.explodeProcessesWithSubProcesses(processes);
+
         if (lanesID.size() > 0) filterByLane(processes, lanesID);
         return processes;
 
@@ -75,11 +76,20 @@ public class BPMNFilter {
             for (BPMNProcess process : processes) {
                 if (process.getPoolID() != null && process.getPoolID().equals(poolID) && !processesToAnalyze.contains(process)) {
                     processesToAnalyze.add(process);
+                    addChildrenRecursively(processesToAnalyze, process);
                     break;
                 }
             }
         }
+
         return processesToAnalyze;
+    }
+
+    private void addChildrenRecursively(ArrayList<BPMNProcess> processesToAnalyze, BPMNProcess process) {
+        for (BPMNProcess childProcess : process.getChildrenProcesses()) {
+            processesToAnalyze.add(childProcess);
+            addChildrenRecursively(processesToAnalyze, childProcess);
+        }
     }
 
     private void filterByLane(ArrayList<BPMNProcess> processes, List<String> lanesID) {

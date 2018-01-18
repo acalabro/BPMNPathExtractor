@@ -29,7 +29,7 @@ public class BPMNGraphicParser {
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(bpmnFile.getInputstream());
             document.getDocumentElement().normalize();
-            uploadBPMNToServer(bpmnFile.getFileName(), bpmnFile.getInputstream());
+            int result = uploadBPMNToServer(bpmnFile.getFileName(), bpmnFile.getInputstream());
             return document;
         } catch (IOException | SAXException | ParserConfigurationException e) {
             e.printStackTrace();
@@ -37,7 +37,7 @@ public class BPMNGraphicParser {
         return null;
     }
 
-    private static String uploadBPMNToServer(String bpmnName, InputStream inputStream) throws IOException {
+    private static int uploadBPMNToServer(String bpmnName, InputStream inputStream) throws IOException {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
@@ -56,9 +56,11 @@ public class BPMNGraphicParser {
         outputStream.write(xmlString.getBytes());
         outputStream.flush();
 
+        int result = connection.getResponseCode();
+
         connection.disconnect();
 
-        return null;
+        return result;
 
     }
 

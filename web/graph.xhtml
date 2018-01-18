@@ -74,6 +74,7 @@
             .ui-toolbar {
                 background: #3A4047;
                 border-color: #3A4047;
+                border-radius: 0;
             }
             .ui-fileupload-content .ui-progressbar {
                 width: 0;
@@ -113,7 +114,7 @@
             }
             .ui-layout-unit-content.ui-widget-content {
                 height: 500pt;
-                background: #f9fafc;
+                background: #F9FAFC;
             }
             .ui-layout-unit-header.ui-widget-header.ui-corner-all {
                 background: #B8BFC6;
@@ -132,7 +133,7 @@
                 box-shadow: none;
             }
             .ui-layout-resizer.ui-layout-resizer-west.ui-layout-resizer-open.ui-layout-resizer-west-open {
-                background: #f9fafc;
+                background: #F9FAFC;
             }
             .ui-icon {
                 background-image: url(../resources/icons.png) !important;
@@ -145,14 +146,16 @@
 
         <h:form id="mainForm" styleClass="main-form">
 
+            <p:growl id="growl" showDetail="true" life="3000" autoUpdate="true"/>
+
             <p:toolbar id="toolbar">
                 <f:facet name="left">
-                    <p:fileUpload fileUploadListener="#{diagramView.createModel}" allowTypes="/(\.|\/)(bpmn)$/" update="mainForm:name mainForm:deepness mainForm:pools mainForm:lanes"/>
+                    <p:fileUpload fileUploadListener="#{diagramView.createModel}" multiple="false" allowTypes="/(\.|\/)(bpmn)$/" update="mainForm:drawDiagram mainForm:setActivitiesProperties mainForm:extractPaths mainForm:name mainForm:deepness mainForm:pools mainForm:lanes"/>
                 </f:facet>
                 <f:facet name="right">
-                    <p:commandButton value="Draw Diagram" actionListener="#{diagramView.drawDiagram}" update="mainForm:diagram" icon="ui-icon-pencil"/>
-                    <p:button value="Set Activities Properties" outcome="properties" icon="ui-icon-wrench"/>
-                    <p:commandButton value="Extract Paths" type="button" onclick="PF('extractPathsDialog').show();" icon="ui-icon ui-icon-gear"/>
+                    <p:commandButton id="drawDiagram" value="Draw Diagram" actionListener="#{diagramView.drawDiagram}" update="mainForm:diagram" icon="ui-icon-pencil" disabled="#{diagramView.showActionButtons}"/>
+                    <p:button id="setActivitiesProperties" value="Set Activities Properties" outcome="properties" icon="ui-icon-wrench" disabled="#{diagramView.showActionButtons}"/>
+                    <p:commandButton id="extractPaths" value="Extract Paths" type="button" onclick="PF('extractPathsDialog').show();" icon="ui-icon ui-icon-gear" disabled="#{diagramView.showActionButtons}"/>
                 </f:facet>
 
             </p:toolbar>
@@ -176,7 +179,7 @@
                     </p:selectManyCheckbox>
                 </p:panelGrid>
 
-                <p:commandButton value="OK" action="#{checkBoxView.sendExtractionRequest}" onclick="PF('extractPathsDialog').hide();" icon="ui-icon-check"/>
+                <p:commandButton value="OK" action="#{checkBoxView.sendExtractionRequest}" onclick="PF('extractPathsDialog').hide();" icon="ui-icon-check" update="mainForm:paths"/>
 
             </p:dialog>
 
@@ -187,9 +190,13 @@
                 </p:layoutUnit>
 
                 <p:layoutUnit position="west" header="Paths List" size="300" gutter="0">
+                    <p:selectOneRadio id="paths" value="#{checkBoxView.selectedPath}" layout="grid" columns="1">
+                        <f:selectItems var="path" value="#{checkBoxView.pathsList}" itemLabel="#{path}" itemValue="#{path}"/>
+                    </p:selectOneRadio>
                 </p:layoutUnit>
 
             </p:layout>
+
 
         </h:form>
 

@@ -21,6 +21,8 @@ import org.primefaces.model.diagram.endpoint.EndPoint;
 import org.primefaces.model.diagram.endpoint.EndPointAnchor;
 import org.primefaces.model.diagram.overlay.ArrowOverlay;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import java.util.HashMap;
 
 public class DiagramView {
@@ -28,9 +30,11 @@ public class DiagramView {
     private DefaultDiagramModel model;
     private FileUploadView fileUploadView;
     private CheckBoxView checkBoxView;
+    private boolean showActionButtons = true;
 
     public void createModel(FileUploadEvent event) {
 
+        showActionButtons = false;
         fileUploadView.handleFileUpload(event);
         checkBoxView.clearInformation();
         checkBoxView.setName(event.getFile().getFileName());
@@ -47,13 +51,15 @@ public class DiagramView {
             processElement.setDraggable(false);
             model.addElement(processElement);
             for (LaneCoordinate laneCoordinate : process.getLanesCoordinates()) {
-                checkBoxView.addLane(laneCoordinate.getLaneID());
+                if (process.getPoolID() != null) checkBoxView.addLane(laneCoordinate.getLaneID());
                 Element laneElement = new Element(null, laneCoordinate.getPosX() + 10 + "pt", laneCoordinate.getPosY() + 50 + "pt");
                 RequestContext.getCurrentInstance().execute(createScriptArgument(laneCoordinate.getLaneID(), laneCoordinate.getWidth(), laneCoordinate.getHeight(), 1));
                 laneElement.setStyleClass(laneCoordinate.getLaneID());
                 laneElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
                 laneElement.setDraggable(false);
-                model.addElement(laneElement); }HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
+                model.addElement(laneElement);
+            }
+            HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
             for (String key : flowObjects.keySet()) {
                 GraphicFlowObject flowObject = flowObjects.get(key);
                 Element element = null;
@@ -93,6 +99,7 @@ public class DiagramView {
         }
 
         checkBoxView.setMaxDeepness(maxDeepness);
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Success", "Upload of " + event.getFile().getFileName() + " complete."));
 
     }
 
@@ -204,6 +211,10 @@ public class DiagramView {
     }
 
     public DiagramModel getModel() { return model; }
+
+    public boolean getShowActionButtons() { return showActionButtons; }
+
+    public void setShowActionButtons(boolean showActionButtons) { this.showActionButtons = showActionButtons; }
 
     public void setFileUploadView(FileUploadView fileUploadView) { this.fileUploadView = fileUploadView; }
     public void setCheckBoxView(CheckBoxView checkBoxView) { this.checkBoxView = checkBoxView; }
