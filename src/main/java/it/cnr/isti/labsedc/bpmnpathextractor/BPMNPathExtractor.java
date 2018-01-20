@@ -30,8 +30,7 @@ public class BPMNPathExtractor {
                 }
                 break;
 		    default:
-			    //TODO: set a default behavior
-			    break;
+                throw new UnsupportedOperationException("Extraction type not supported.");
         }
 
     }

@@ -23,6 +23,8 @@ import org.primefaces.model.diagram.overlay.ArrowOverlay;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DiagramView {
@@ -31,10 +33,12 @@ public class DiagramView {
     private FileUploadView fileUploadView;
     private CheckBoxView checkBoxView;
     private boolean showActionButtons = true;
+    private ArrayList<Element> diagramElements;
 
     public void createModel(FileUploadEvent event) {
 
         showActionButtons = false;
+        diagramElements = new ArrayList<>();
         fileUploadView.handleFileUpload(event);
         checkBoxView.clearInformation();
         checkBoxView.setName(event.getFile().getFileName());
@@ -45,19 +49,19 @@ public class DiagramView {
             if (process.getDeepness() > maxDeepness) maxDeepness = process.getDeepness();
             if (process.getPoolID() != null) checkBoxView.addPool(process.getPoolID());
             Element processElement = new Element(process.getPoolName(), process.getPosX() + 10 + "pt", process.getPosY() + 50 + "pt");
-            RequestContext.getCurrentInstance().execute(createScriptArgument(process.getPoolID(), process.getWidth(), process.getHeight(), 1));
+            RequestContext.getCurrentInstance().execute(createScriptArgument(process.getPoolID(), process.getWidth(), process.getHeight(), StyleType.POOL));
             processElement.setStyleClass(process.getPoolID());
             processElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
             processElement.setDraggable(false);
-            model.addElement(processElement);
+            diagramElements.add(processElement);
             for (LaneCoordinate laneCoordinate : process.getLanesCoordinates()) {
-                if (process.getPoolID() != null) checkBoxView.addLane(laneCoordinate.getLaneID());
+                if (process.getPoolID() != null) checkBoxView.addLane(process.getPoolID(), laneCoordinate.getLaneID());
                 Element laneElement = new Element(null, laneCoordinate.getPosX() + 10 + "pt", laneCoordinate.getPosY() + 50 + "pt");
-                RequestContext.getCurrentInstance().execute(createScriptArgument(laneCoordinate.getLaneID(), laneCoordinate.getWidth(), laneCoordinate.getHeight(), 1));
+                RequestContext.getCurrentInstance().execute(createScriptArgument(laneCoordinate.getLaneID(), laneCoordinate.getWidth(), laneCoordinate.getHeight(), StyleType.POOL));
                 laneElement.setStyleClass(laneCoordinate.getLaneID());
                 laneElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
                 laneElement.setDraggable(false);
-                model.addElement(laneElement);
+                diagramElements.add(laneElement);
             }
             HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
             for (String key : flowObjects.keySet()) {
@@ -66,7 +70,7 @@ public class DiagramView {
                 if (flowObject instanceof GraphicActivity) {
                     if (flowObject instanceof GraphicSubProcess) {
                         element = new Element(flowObject.getName(), flowObject.getPosX() - 5 + "pt", flowObject.getPosY() + 50 + "pt");
-                        RequestContext.getCurrentInstance().execute(createScriptArgument(flowObject.getId(), flowObject.getWidth(), flowObject.getHeight(), 0));
+                        RequestContext.getCurrentInstance().execute(createScriptArgument(flowObject.getId(), flowObject.getWidth(), flowObject.getHeight(), StyleType.SUB_PROCESS));
                         element.setStyleClass(flowObject.getId());
                     } else {
                         element = new Element(flowObject.getName(), flowObject.getPosX() + 10 + "pt", flowObject.getPosY() + 65 + "pt");
@@ -91,7 +95,7 @@ public class DiagramView {
                     element.addEndPoint(new BlankEndPoint(EndPointAnchor.RIGHT));
                     element.addEndPoint(new BlankEndPoint(EndPointAnchor.BOTTOM));
                     element.addEndPoint(new BlankEndPoint(EndPointAnchor.LEFT));
-                    model.addElement(element);
+                    diagramElements.add(element);
                 }
 
             }
@@ -99,33 +103,43 @@ public class DiagramView {
         }
 
         checkBoxView.setMaxDeepness(maxDeepness);
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Success", "Upload of " + event.getFile().getFileName() + " complete."));
+        checkBoxView.fillLanesList();
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Upload of " + event.getFile().getFileName() + " complete."));
 
     }
 
-    public void drawDiagram() {
+    public void drawDiagram(ArrayList<String> pathElements) {
+
+        for (Element element : diagramElements)
+            model.addElement(element);
 
         FlowChartConnector connectionConnector = new FlowChartConnector();
-        model.setDefaultConnector(connectionConnector);
+        FlowChartConnector selectedConnectionConnector = new FlowChartConnector();
+        connectionConnector.setPaintStyle("{strokeStyle:'#000000',lineWidth:2}");
+        selectedConnectionConnector.setPaintStyle("{strokeStyle:'#FF0000',lineWidth:2}");
 
         for (BPMNGraphicProcess process : fileUploadView.getProcesses()) {
 
-            connectionConnector.setPaintStyle("{strokeStyle:'#000000',lineWidth:2}");
             HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
             HashMap<String, GraphicConnection> connections = process.getConnections();
             for (String key : connections.keySet()) {
-                GraphicConnection connection = connections.get(key);
-                String sourceRef = connection.getSourceRef();
-                String targetRef = connection.getTargetRef();
+                GraphicConnection flow = connections.get(key);
+                String sourceRef = flow.getSourceRef();
+                String targetRef = flow.getTargetRef();
                 Element sourceElement = model.findElement(sourceRef);
                 Element targetElement = model.findElement(targetRef);
                 GraphicFlowObject sourceObject = flowObjects.get(sourceRef);
                 GraphicFlowObject targetObject = flowObjects.get(targetRef);
 
-                int sourceElementAnchor = findAnchorPosition(sourceObject, connection.getWaypoints().get(0));
-                int targetElementAnchor = findAnchorPosition(targetObject, connection.getWaypoints().get(connection.getWaypoints().size() - 1));
+                int sourceElementAnchor = findAnchorPosition(sourceObject, flow.getWaypoints().get(0));
+                int targetElementAnchor = findAnchorPosition(targetObject, flow.getWaypoints().get(flow.getWaypoints().size() - 1));
 
-                model.connect(createConnection(sourceElement.getEndPoints().get(sourceElementAnchor), targetElement.getEndPoints().get(targetElementAnchor)));
+                Connection connection = createConnection(sourceElement.getEndPoints().get(sourceElementAnchor), targetElement.getEndPoints().get(targetElementAnchor));
+                if (pathElements != null && pathElements.contains(sourceRef) && pathElements.contains(targetRef))
+                    connection.setConnector(selectedConnectionConnector);
+                else
+                    connection.setConnector(connectionConnector);
+                model.connect(connection);
 
             }
 
@@ -163,8 +177,6 @@ public class DiagramView {
         Connection connection = new Connection(from, to);
         connection.getOverlays().add(new ArrowOverlay(10, 10, 1, 1));
 
-        //if(label != null) connection.getOverlays().add(new LabelOverlay(label));
-
         return connection;
     }
 
@@ -188,8 +200,16 @@ public class DiagramView {
 
     }
 
-    private String createScriptArgument(String id, int width, int height, int type) {
-        if (type == 0) {
+    private String createScriptArgument(String id, int width, int height, StyleType type) {
+        if (type == StyleType.POOL)
+            return "createClass(" +
+                    "\"." + id + "\", \"" +
+                    "border: 1.5pt solid black; " +
+                    "width: " + width + "pt; " +
+                    "height: " + height + "pt; " +
+                    "text-align: center; " +
+                    "\")";
+        else if (type == StyleType.SUB_PROCESS)
             return "createClass(" +
                     "\"." + id + "\", \"" +
                     "border: 1.5pt solid black; " +
@@ -198,16 +218,63 @@ public class DiagramView {
                     "text-align: center; " +
                     "border-radius: 10pt; " +
                     "\")";
-        } else if (type == 1) {
+        else if (type == StyleType.SELECTED_SUB_PROCESS)
             return "createClass(" +
                     "\"." + id + "\", \"" +
-                    "border: 1.5pt solid black; " +
+                    "border: 1.5pt solid red; " +
                     "width: " + width + "pt; " +
                     "height: " + height + "pt; " +
                     "text-align: center; " +
+                    "border-radius: 10pt; " +
                     "\")";
-        }
         return null;
+    }
+
+    public void markSelectedPath() {
+
+        ArrayList<String> pathElements = checkBoxView.getPath(checkBoxView.getSelectedPath());
+
+        ArrayList<BPMNGraphicProcess> processes = fileUploadView.getProcesses();
+
+        for (BPMNGraphicProcess process : processes) {
+            HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
+            for (String key : flowObjects.keySet()) {
+                GraphicFlowObject flowObject = flowObjects.get(key);
+                Element element = model.findElement(flowObject.getId());
+                if (pathElements.contains(flowObject.getId())) {
+                    if (flowObject instanceof GraphicActivity)
+                        if (flowObject instanceof GraphicSubProcess) {
+                            RequestContext.getCurrentInstance().execute(createScriptArgument(flowObject.getId(), flowObject.getWidth(), flowObject.getHeight(), StyleType.SELECTED_SUB_PROCESS));
+                            element.setStyleClass(flowObject.getId());
+                        } else element.setStyleClass("selected-activity");
+                    else if (flowObject instanceof GraphicGateway)
+                        element.setStyleClass("selected-gateway");
+                    else if (flowObject instanceof GraphicStartEvent)
+                        element.setStyleClass("selected-start-event");
+                    else if (flowObject instanceof GraphicIntermediateEvent)
+                        element.setStyleClass("selected-intermediate-event");
+                    else if (flowObject instanceof GraphicEndEvent)
+                        element.setStyleClass("selected-end-event");
+                } else {
+                    if (flowObject instanceof GraphicActivity)
+                        if (flowObject instanceof GraphicSubProcess) {
+                            RequestContext.getCurrentInstance().execute(createScriptArgument(flowObject.getId(), flowObject.getWidth(), flowObject.getHeight(), StyleType.SUB_PROCESS));
+                            element.setStyleClass(flowObject.getId());
+                        } else element.setStyleClass("activity");
+                    else if (flowObject instanceof GraphicGateway)
+                        element.setStyleClass("gateway");
+                    else if (flowObject instanceof GraphicStartEvent)
+                        element.setStyleClass("start-event");
+                    else if (flowObject instanceof GraphicIntermediateEvent)
+                        element.setStyleClass("intermediate-event");
+                    else if (flowObject instanceof GraphicEndEvent)
+                        element.setStyleClass("end-event");
+                }
+            }
+        }
+
+        drawDiagram(pathElements);
+
     }
 
     public DiagramModel getModel() { return model; }
