@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+<html xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
       xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-        <title>BPMN Path Extractor - Main Page</title>
+
+        <title>BPMN Path Extractor</title>
+
         <style type="text/css">
+
             body, html {
                 height: 100%;
                 margin: 0;
+            }
+            ::selection {
+                background-color: #F9FAFC;
             }
             .main-form {
                 font-size: 8pt;
@@ -115,8 +118,7 @@
             }
             .diagram {
                 height: inherit;
-                min-width: inherit;
-                width: 5000pt;
+                width: inherit;
             }
             .ui-toolbar {
                 background: #3A4047;
@@ -137,26 +139,29 @@
             .ui-fileupload-buttonbar .ui-fileupload-choose {
                 background: #3A4047;
                 border: none;
-                color: white;
+                color: #F9FAFC;
                 text-shadow: none;
                 box-shadow: none;
             }
             .ui-fileupload-buttonbar .ui-fileupload-upload {
                 background: #3A4047;
                 border: none;
-                color: white;
+                color: #F9FAFC;
                 text-shadow: none;
                 box-shadow: none;
             }
             .ui-fileupload-buttonbar .ui-fileupload-cancel {
                 background: #3A4047;
                 border: none;
-                color: white;
+                color: #F9FAFC;
                 text-shadow: none;
                 box-shadow: none;
             }
-            .ui-panel-grid-blank {
-                margin: 0 auto;
+            .ui-widget-content {
+                border-color: #B8BFC6;
+            }
+            .ui-panelgrid-cell {
+                background: #F9FAFC;
             }
             .ui-layout-unit-content.ui-widget-content {
                 height: 500pt;
@@ -170,11 +175,17 @@
                 box-shadow: none;
                 border-radius: 0;
             }
-            .ui-button, button.ui-button.ui-state-default,
-            .ui-button.ui-state-default.toolbar-button {
+            .ui-button.ui-widget.ui-corner-all {
                 background: #3A4047;
                 border: none;
-                color: white;
+                color: #F9FAFC;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-autocomplete .ui-autocomplete-dropdown {
+                background: #3A4047;
+                border: none;
+                color: #F9FAFC;
                 text-shadow: none;
                 box-shadow: none;
             }
@@ -212,6 +223,10 @@
             }
             .ui-autocomplete-input.ui-autocomplete-dd-input.ui-inputfield.ui-widget.ui-state-default.ui-corner-left {
                 box-shadow: none;
+                text-shadow: none;
+                text-align: center;
+                background: #F9FAFC;
+                border-color: #3A4047;
             }
             .ui-dialog-titlebar.ui-widget-header.ui-helper-clearfix.ui-corner-top.ui-draggable-handle {
                 background: #B8BFC6;
@@ -222,6 +237,7 @@
             }
             .ui-autocomplete-item.ui-autocomplete-list-item.ui-corner-all {
                 font-size: 8pt;
+                text-align: center;
             }
             .ui-autocomplete-item.ui-autocomplete-list-item.ui-corner-all.ui-state-highlight {
                 background: #3A4047;
@@ -253,6 +269,35 @@
                 background: #B8BFC6;
                 box-shadow: none;
             }
+            .ui-selectonelistbox.ui-inputfield.ui-widget.ui-widget-content.ui-corner-all {
+                border: none;
+                box-shadow: none;
+                width: inherit;
+                background: #F9FAFC;
+                text-shadow: none;
+            }
+            .ui-selectlistbox-item.ui-corner-all.ui-state-highlight {
+                background: #3A4047;
+                text-shadow: none;
+            }
+            .ui-selectlistbox-item.ui-corner-all.ui-state-hover {
+                background: #B8BFC6;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-inputfield.ui-inputtextarea.ui-widget.ui-state-default.ui-corner-all.ui-inputtextarea-resizable {
+                background: #F9FAFC;
+                border: none;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-inputfield.ui-inputtext.ui-widget.ui-state-default.ui-corner-all{
+                box-shadow: none;
+                text-shadow: none;
+                text-align: center;
+                background: #F9FAFC;
+                border-color: #3A4047;
+            }
 
         </style>
     </h:head>
@@ -268,9 +313,9 @@
                     <p:fileUpload fileUploadListener="#{diagramView.createModel}" multiple="false" allowTypes="/(\.|\/)(bpmn)$/" update="mainForm"/>
                 </f:facet>
                 <f:facet name="right">
-                    <p:commandButton id="drawDiagram" value="Draw Diagram" actionListener="#{diagramView.drawDiagram(null)}" update="mainForm:diagram" icon="ui-icon-pencil" disabled="#{diagramView.showActionButtons}"/>
-                    <p:button id="setActivitiesProperties" value="Set Activities Properties" outcome="properties" icon="ui-icon-wrench" disabled="#{diagramView.showActionButtons}"/>
-                    <p:commandButton id="extractPaths" value="Extract Paths" type="button" onclick="PF('extractPathsDialog').show();" icon="ui-icon ui-icon-gear" disabled="#{diagramView.showActionButtons}"/>
+                    <p:commandButton id="drawDiagram" value="Draw Diagram" actionListener="#{diagramView.drawDiagram(null)}" update="mainForm:diagram mainForm:paths" icon="ui-icon-pencil" disabled="#{diagramView.showActionButtons}"/>
+                    <p:commandButton id="setProperties" value="Set Properties" action="#{diagramView.disablePropertiesButtons}" onclick="PF('setPropertiesDialog').show();" icon="ui-icon-wrench" disabled="#{diagramView.showActionButtons}" update="mainForm:key mainForm:value mainForm:addProperty"/>
+                    <p:commandButton id="extractPaths" value="Extract Paths" onclick="PF('extractPathsDialog').show();" icon="ui-icon ui-icon-gear" disabled="#{diagramView.showActionButtons}"/>
                 </f:facet>
 
             </p:toolbar>
@@ -279,22 +324,51 @@
 
             <p:dialog header="Extraction Parameters" widgetVar="extractPathsDialog" resizable="false">
 
-                <p:panelGrid columns="2" cellpadding="5" styleClass="ui-panelgrid-blank">
+                <p:panelGrid columns="4">
                     <p:outputLabel for="name" value="Name"/>
-                    <p:outputLabel id="name" value="#{checkBoxView.name}"/>
                     <p:outputLabel for="deepness" value="Deepness"/>
-                    <p:autoComplete id="deepness" dropdown="true" value="#{checkBoxView.selectedDeepness}" completeMethod="#{checkBoxView.completeDeepnessList}"/>
                     <p:outputLabel for="pools" value="Pools"/>
-                    <p:selectManyCheckbox id="pools" value="#{checkBoxView.selectedPools}" layout="grid" columns="3">
+                    <p:outputLabel for="lanes" value="Lanes"/>
+                    <p:outputLabel id="name" value="#{checkBoxView.name}"/>
+                    <p:autoComplete id="deepness" dropdown="true" value="#{checkBoxView.selectedDeepness}" completeMethod="#{checkBoxView.completeDeepnessList}"/>
+                    <p:selectManyCheckbox id="pools" value="#{checkBoxView.selectedPools}" layout="grid" columns="1">
                         <f:selectItems value="#{checkBoxView.pools}" var="pool" itemLabel="#{pool}" itemValue="#{pool}"/>
                     </p:selectManyCheckbox>
-                    <p:outputLabel for="lanes" value="Lanes"/>
-                    <p:selectManyCheckbox id="lanes" value="#{checkBoxView.selectedLanes}" layout="pageDirection" columns="3">
+                    <p:selectManyCheckbox id="lanes" value="#{checkBoxView.selectedLanes}" layout="grid" columns="3">
                         <f:selectItems value="#{checkBoxView.lanes}" var="lane" itemLabel="#{lane}" itemValue="#{lane}"/>
                     </p:selectManyCheckbox>
                 </p:panelGrid>
 
                 <p:commandButton value="OK" action="#{checkBoxView.sendExtractionRequest}" onclick="PF('extractPathsDialog').hide();" icon="ui-icon-check" update="mainForm:paths"/>
+
+            </p:dialog>
+
+            <p:dialog header="Set Properties" widgetVar="setPropertiesDialog" resizable="false">
+
+                <p:panelGrid columns="4">
+                    <p:outputLabel for="process" value="Process"/>
+                    <p:outputLabel for="activity" value="Activity"/>
+                    <p:outputLabel for="property" value="Add Property"/>
+                    <p:outputLabel for="properties" value="Actual Properties"/>
+                    <p:selectOneListbox id="process" value="#{checkBoxView.selectedProcess}">
+                        <p:ajax process="@this" update="mainForm:activity" listener="#{diagramView.fillProcessActivities}"/>
+                        <f:selectItems value="#{checkBoxView.processes}" var="process" itemLabel="#{process}" itemValue="#{process}"/>
+                    </p:selectOneListbox>
+                    <p:selectOneListbox id="activity" value="#{checkBoxView.selectedActivity}">
+                        <p:ajax process="@this" update="mainForm:properties mainForm:key mainForm:value mainForm:addProperty" listener="#{diagramView.fillActivityProperties}"/>
+                        <f:selectItems value="#{checkBoxView.selectedProcessActivities}" var="activity" itemValue="#{activity}" itemLabel="#{activity}"/>
+                    </p:selectOneListbox>
+                    <p:panelGrid id="property" columns="1" styleClass="ui-panelgrid-blank">
+                        <p:panelGrid columns="2">
+                            <p:outputLabel for="key" value="Key"/>
+                            <p:inputText id="key" value="#{checkBoxView.propertyKey}" disabled="#{diagramView.showPropertiesInputText}"/>
+                            <p:outputLabel for="value" value="Value"/>
+                            <p:inputText id="value" value="#{checkBoxView.propertyValue}" disabled="#{diagramView.showPropertiesInputText}"/>
+                        </p:panelGrid>
+                        <p:commandButton id="addProperty" value="Add Property" action="#{diagramView.addProperty}" icon="ui-icon-plus" disabled="#{diagramView.showPropertiesInputText}" update="mainForm:key mainForm:value mainForm:properties"/>
+                    </p:panelGrid>
+                    <p:inputTextarea id="properties" readonly="true" value="#{checkBoxView.activityProperties}"/>
+                </p:panelGrid>
 
             </p:dialog>
 
@@ -305,10 +379,10 @@
                 </p:layoutUnit>
 
                 <p:layoutUnit position="west" header="Paths List" size="300" gutter="0">
-                    <p:selectOneRadio id="paths" value="#{checkBoxView.selectedPath}" layout="grid" columns="1">
+                    <p:selectOneListbox id="paths" value="#{checkBoxView.selectedPath}" disabled="#{diagramView.showPaths}">
                         <p:ajax process="@this" update="mainForm:diagram" listener="#{diagramView.markSelectedPath}"/>
-                        <f:selectItems var="path" value="#{checkBoxView.pathsList}" itemLabel="#{path}" itemValue="#{path}"/>
-                    </p:selectOneRadio>
+                        <f:selectItems value="#{checkBoxView.pathsList}" var="path" itemLabel="#{path}" itemValue="#{path}"/>
+                    </p:selectOneListbox>
                 </p:layoutUnit>
 
             </p:layout>

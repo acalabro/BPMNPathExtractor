@@ -4,8 +4,6 @@ import org.primefaces.json.JSONArray;
 import org.primefaces.json.JSONObject;
 
 import javax.annotation.PostConstruct;
-import javax.faces.model.SelectItem;
-import javax.faces.model.SelectItemGroup;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,19 +23,26 @@ public class CheckBoxView {
     private String[] selectedPools;
     private String[] selectedLanes;
     private String selectedPath;
+    private String selectedProcess;
+    private String selectedActivity;
+    private String activityProperties;
+    private String propertyKey;
+    private String propertyValue;
 
     private List<String> pools;
-    private List<SelectItem> lanes;
+    private List<String> lanes;
     private List<String> pathsList;
+    private List<String> processes;
+    private List<String> selectedProcessActivities;
 
-    private HashMap<String, ArrayList<String>> groupedLanes;
     private HashMap<String, ArrayList<String>> paths;
 
     @PostConstruct
     public void init() {
         pools = new ArrayList<>();
         lanes = new ArrayList<>();
-        groupedLanes = new HashMap<>();
+        processes = new ArrayList<>();
+        selectedProcessActivities = new ArrayList<>();
         paths = new HashMap<>();
     }
 
@@ -58,29 +63,15 @@ public class CheckBoxView {
         selectedPools = null;
         selectedLanes = null;
         selectedPath = null;
+        selectedProcess = null;
+        selectedActivity = null;
+        activityProperties = null;
         pools = new ArrayList<>();
         lanes = new ArrayList<>();
+        processes = new ArrayList<>();
         pathsList = new ArrayList<>();
-        groupedLanes = new HashMap<>();
+        selectedProcessActivities = new ArrayList<>();
         paths = new HashMap<>();
-    }
-
-    public void fillLanesList() {
-
-        for (String key : groupedLanes.keySet()) {
-
-            ArrayList<SelectItem> selectItems = new ArrayList<>();
-
-            for (String lane : groupedLanes.get(key))
-                selectItems.add(new SelectItem(lane, lane));
-
-            SelectItemGroup itemGroup = new SelectItemGroup(key);
-            itemGroup.setSelectItems(selectItems.toArray(new SelectItem[selectItems.size()]));
-
-            lanes.add(itemGroup);
-
-        }
-
     }
 
     public void sendExtractionRequest() {
@@ -144,16 +135,22 @@ public class CheckBoxView {
 
     public String getName() { return name; }
 
-    public int getMaxDeepness() { return maxDeepness; }
     public int getSelectedDeepness() { return selectedDeepness; }
-
-    public List<String> getPools() { return pools; }
-    public List<SelectItem> getLanes() { return lanes; }
-    public List<String> getPathsList() { return pathsList; }
 
     public String[] getSelectedPools() { return selectedPools; }
     public String[] getSelectedLanes() { return selectedLanes; }
     public String getSelectedPath() { return selectedPath; }
+    public String getSelectedProcess() { return selectedProcess; }
+    public String getSelectedActivity() { return selectedActivity; }
+    public String getActivityProperties() { return activityProperties; }
+    public String getPropertyKey() { return propertyKey; }
+    public String getPropertyValue() { return propertyValue; }
+
+    public List<String> getPools() { return pools; }
+    public List<String> getLanes() { return lanes; }
+    public List<String> getProcesses() { return processes; }
+    public List<String> getPathsList() { return pathsList; }
+    public List<String> getSelectedProcessActivities() { return selectedProcessActivities; }
 
     public void setName(String name) { this.name = name; }
 
@@ -163,15 +160,19 @@ public class CheckBoxView {
     public void setSelectedPools(String[] selectedPools) { this.selectedPools = selectedPools; }
     public void setSelectedLanes(String[] selectedLanes) { this.selectedLanes = selectedLanes; }
     public void setSelectedPath(String selectedPath) { this.selectedPath = selectedPath; }
-
-    public void addPool(String pool) { pools.add(pool); }
-
-    public void addLane(String poolID, String laneID) {
-        groupedLanes.computeIfAbsent(poolID, k -> new ArrayList<>());
-        groupedLanes.get(poolID).add(laneID);
-    }
+    public void setSelectedProcess(String selectedProcess) { this.selectedProcess = selectedProcess; }
+    public void setSelectedActivity(String selectedActivity) { this.selectedActivity = selectedActivity; }
+    public void setActivityProperties(String activityProperties) { this.activityProperties = activityProperties; }
+    public void setPropertyKey(String propertyKey) { this.propertyKey = propertyKey; }
+    public void setPropertyValue(String propertyValue) { this.propertyValue = propertyValue; }
 
     public void setPathsList(List<String> pathsList) { this.pathsList = pathsList; }
+    public void setSelectedProcessActivities(List<String> selectedProcessActivities) { this.selectedProcessActivities = selectedProcessActivities; }
+
+    public void addPool(String pool) { pools.add(pool); }
+    public void addLane(String lane) { lanes.add(lane); }
+    public void addProcess(String processID) { processes.add(processID); }
+    public void addSelectedProcessActivity(String flowObjectID) { selectedProcessActivities.add(flowObjectID); }
 
     public ArrayList<String> getPath(String pathLabel) { return paths.get(pathLabel); }
 

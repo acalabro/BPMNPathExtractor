@@ -33,11 +33,14 @@ public class DiagramView {
     private FileUploadView fileUploadView;
     private CheckBoxView checkBoxView;
     private boolean showActionButtons = true;
+    private boolean showPaths;
+    private boolean showPropertiesInputText;
     private ArrayList<Element> diagramElements;
 
     public void createModel(FileUploadEvent event) {
 
         showActionButtons = false;
+        showPaths = true;
         diagramElements = new ArrayList<>();
         fileUploadView.handleFileUpload(event);
         checkBoxView.clearInformation();
@@ -45,17 +48,20 @@ public class DiagramView {
         model = new DefaultDiagramModel();
         model.setMaxConnections(-1);
         int maxDeepness = 0;
+
         for (BPMNGraphicProcess process : fileUploadView.getProcesses()) {
             if (process.getDeepness() > maxDeepness) maxDeepness = process.getDeepness();
             if (process.getPoolID() != null) checkBoxView.addPool(process.getPoolID());
+            checkBoxView.addProcess(process.getId());
             Element processElement = new Element(process.getPoolName(), process.getPosX() + 10 + "pt", process.getPosY() + 50 + "pt");
             RequestContext.getCurrentInstance().execute(createScriptArgument(process.getPoolID(), process.getWidth(), process.getHeight(), StyleType.POOL));
             processElement.setStyleClass(process.getPoolID());
             processElement.addEndPoint(new BlankEndPoint(EndPointAnchor.TOP));
             processElement.setDraggable(false);
             diagramElements.add(processElement);
+
             for (LaneCoordinate laneCoordinate : process.getLanesCoordinates()) {
-                if (process.getPoolID() != null) checkBoxView.addLane(process.getPoolID(), laneCoordinate.getLaneID());
+                if (process.getPoolID() != null) checkBoxView.addLane(laneCoordinate.getLaneID());
                 Element laneElement = new Element(null, laneCoordinate.getPosX() + 10 + "pt", laneCoordinate.getPosY() + 50 + "pt");
                 RequestContext.getCurrentInstance().execute(createScriptArgument(laneCoordinate.getLaneID(), laneCoordinate.getWidth(), laneCoordinate.getHeight(), StyleType.POOL));
                 laneElement.setStyleClass(laneCoordinate.getLaneID());
@@ -63,7 +69,9 @@ public class DiagramView {
                 laneElement.setDraggable(false);
                 diagramElements.add(laneElement);
             }
+
             HashMap<String, GraphicFlowObject> flowObjects = process.getFlowObjects();
+
             for (String key : flowObjects.keySet()) {
                 GraphicFlowObject flowObject = flowObjects.get(key);
                 Element element = null;
@@ -103,13 +111,13 @@ public class DiagramView {
         }
 
         checkBoxView.setMaxDeepness(maxDeepness);
-        checkBoxView.fillLanesList();
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Upload of " + event.getFile().getFileName() + " complete."));
 
     }
 
     public void drawDiagram(ArrayList<String> pathElements) {
 
+        showPaths = false;
         for (Element element : diagramElements)
             model.addElement(element);
 
@@ -277,11 +285,76 @@ public class DiagramView {
 
     }
 
+    public void fillProcessActivities() {
+
+        String processID = checkBoxView.getSelectedProcess();
+        BPMNGraphicProcess process = null;
+        checkBoxView.setSelectedProcessActivities(new ArrayList<>());
+
+        for (BPMNGraphicProcess bpmnGraphicProcess : fileUploadView.getProcesses()) {
+            if (bpmnGraphicProcess.getId().equals(processID)) {
+                process = bpmnGraphicProcess;
+                break;
+            }
+        }
+
+        if (process != null) {
+            for (String flowObjectID : process.getFlowObjects().keySet())
+                checkBoxView.addSelectedProcessActivity(flowObjectID);
+        }
+
+    }
+
+    public void fillActivityProperties() {
+
+        for (BPMNGraphicProcess process : fileUploadView.getProcesses()) {
+            if (process.getId().equals(checkBoxView.getSelectedProcess())) {
+                GraphicFlowObject flowObject = process.getFlowObject(checkBoxView.getSelectedActivity());
+                StringBuilder stringBuilder = new StringBuilder();
+                for (String key : flowObject.getProperties().keySet()) {
+                    stringBuilder.append(key).append(": ")
+                            .append(flowObject.getProperties().get(key))
+                            .append(System.lineSeparator());
+                }
+                checkBoxView.setActivityProperties(stringBuilder.toString());
+                break;
+            }
+        }
+
+        showPropertiesInputText = false;
+
+    }
+
+    public void addProperty() {
+
+        for (BPMNGraphicProcess process : fileUploadView.getProcesses()) {
+            if (process.getId().equals(checkBoxView.getSelectedProcess())) {
+                GraphicFlowObject flowObject = process.getFlowObject(checkBoxView.getSelectedActivity());
+                flowObject.addProperty(checkBoxView.getPropertyKey(), checkBoxView.getPropertyValue());
+                break;
+            }
+        }
+
+        String stringBuilder = checkBoxView.getActivityProperties() + checkBoxView.getPropertyKey() + ": " +
+                checkBoxView.getPropertyValue() + System.lineSeparator();
+
+        checkBoxView.setActivityProperties(stringBuilder);
+        checkBoxView.setPropertyKey(null);
+        checkBoxView.setPropertyValue(null);
+
+    }
+
+    public void disablePropertiesButtons() { showPropertiesInputText = true; }
+
     public DiagramModel getModel() { return model; }
 
-    public boolean getShowActionButtons() { return showActionButtons; }
+    public boolean isShowActionButtons() { return showActionButtons; }
+    public boolean isShowPaths() { return showPaths; }
+    public boolean isShowPropertiesInputText() { return showPropertiesInputText; }
 
     public void setShowActionButtons(boolean showActionButtons) { this.showActionButtons = showActionButtons; }
+    public void setShowPaths(boolean showPaths) { this.showPaths = showPaths; }
+    public void setShowPropertiesInputText(boolean showPropertiesInputText) { this.showPropertiesInputText = showPropertiesInputText; }
 
     public void setFileUploadView(FileUploadView fileUploadView) { this.fileUploadView = fileUploadView; }
     public void setCheckBoxView(CheckBoxView checkBoxView) { this.checkBoxView = checkBoxView; }

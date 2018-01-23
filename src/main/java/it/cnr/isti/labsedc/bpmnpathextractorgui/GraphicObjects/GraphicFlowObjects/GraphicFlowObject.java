@@ -3,7 +3,7 @@ package it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjec
 import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.BPMNGraphicObject;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public abstract class GraphicFlowObject implements BPMNGraphicObject {
 
@@ -16,6 +16,7 @@ public abstract class GraphicFlowObject implements BPMNGraphicObject {
     private ArrayList<String> incomingConnections;
     private ArrayList<String> outgoingConnections;
     private ArrayList<String> parentLanes;
+    private HashMap<String, String> properties;
 
     public GraphicFlowObject(String id, String name) {
         this.id = id;
@@ -23,6 +24,7 @@ public abstract class GraphicFlowObject implements BPMNGraphicObject {
         incomingConnections = new ArrayList<>();
         outgoingConnections = new ArrayList<>();
         parentLanes = new ArrayList<>();
+        properties = new HashMap<>();
     }
 
     @Override
@@ -50,13 +52,10 @@ public abstract class GraphicFlowObject implements BPMNGraphicObject {
         return stringBuilder.toString();
     }
 
-    public ArrayList<String> getIncomingConnections() { return incomingConnections; }
-    public ArrayList<String> getOutgoingConnections() { return outgoingConnections; }
-    public ArrayList<String> getParentLanes() { return parentLanes; }
-
     public void addIncomingConnection(String connectionID) { incomingConnections.add(connectionID); }
     public void addOutgoingConnection(String connectionID) { outgoingConnections.add(connectionID); }
     public void addParentLane(String laneID) { parentLanes.add(laneID); }
+    public void addProperty(String key, String value) { properties.put(key, value); }
 
     public String getId() { return id; }
     public String getName() { return name; }
@@ -65,17 +64,14 @@ public abstract class GraphicFlowObject implements BPMNGraphicObject {
     public int getWidth() { return width; }
     public int getHeight() { return height; }
 
+    public ArrayList<String> getParentLanes() { return parentLanes; }
+    public HashMap<String, String> getProperties() { return properties; }
+
     public void setPosX(int posX) { this.posX = posX; }
     public void setPosY(int posY) { this.posY = posY; }
     public void setWidth(int width) { this.width = width; }
     public void setHeight(int height) { this.height = height; }
 
     public void setParentLanes(ArrayList<String> parentLanes) { this.parentLanes = new ArrayList<>(parentLanes); }
-
-    public boolean isAChild(List<String> lanesID) {
-        for (String laneID : lanesID)
-            if (parentLanes.contains(laneID)) return true;
-        return false;
-    }
-
+    public void setProperties(HashMap<String, String> properties) { this.properties = properties; }
 }
