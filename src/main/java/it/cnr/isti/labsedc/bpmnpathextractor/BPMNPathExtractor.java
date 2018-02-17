@@ -110,18 +110,16 @@ public class BPMNPathExtractor {
         LinkedList<FlowObject> flowObjects = path.getFlowObjects();
         for (int i = index; i < flowObjects.size(); i++) {
             FlowObject flowObject = flowObjects.get(i);
-            if (flowObject instanceof Gateway) {
-                for (BPMNCycle cycle : cycles) {
-                    if (cycle.getRootObject().equals(flowObject)) {
-                        BPMNPath incompletePath = new BPMNPath(path, process.getPathID());
-                        LinkedList<FlowObject> cycleObjects = cycle.getFlowObjects();
-                        for (int j = 0; j < cycleObjects.size(); j++)
-                            incompletePath.addFlowObject(i + j + 1, cycleObjects.get(j));
-                        process.addPath(incompletePath);
-                        ArrayList<BPMNCycle> newCycles = new ArrayList<>(cycles);
-                        newCycles.remove(cycle);
-                        explodePathWithCycles(process, incompletePath, newCycles, i + 1);
-                    }
+            for (BPMNCycle cycle : cycles) {
+                if (cycle.getRootObject().equals(flowObject)) {
+                    BPMNPath incompletePath = new BPMNPath(path, process.getPathID());
+                    LinkedList<FlowObject> cycleObjects = cycle.getFlowObjects();
+                    for (int j = 0; j < cycleObjects.size(); j++)
+                        incompletePath.addFlowObject(i + j + 1, cycleObjects.get(j));
+                    process.addPath(incompletePath);
+                    ArrayList<BPMNCycle> newCycles = new ArrayList<>(cycles);
+                    newCycles.remove(cycle);
+                    explodePathWithCycles(process, incompletePath, newCycles, i + 1);
                 }
             }
         }

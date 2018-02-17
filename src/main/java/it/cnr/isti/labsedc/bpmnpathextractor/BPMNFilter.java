@@ -52,9 +52,8 @@ public class BPMNFilter {
         ArrayList<BPMNProcess> processes = BPMNParser.parseProcessesList(bpmnDocument);
         if (poolsID.size() > 0) processes = filterByPool(processes, poolsID);
         if (deepness > -1) processes = filterByDeepness(processes, deepness);
-        for (BPMNProcess process : processes) {
+        for (BPMNProcess process : processes)
             extractor.extractPaths(process);
-        }
         extractor.explodeProcessesWithSubProcesses(processes);
 
         if (lanesID.size() > 0) filterByLane(processes, lanesID);

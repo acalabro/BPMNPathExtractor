@@ -1,6 +1,5 @@
 package it.cnr.isti.labsedc.bpmnpathextractor;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNPath;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNProcess;
 
 import java.io.*;
