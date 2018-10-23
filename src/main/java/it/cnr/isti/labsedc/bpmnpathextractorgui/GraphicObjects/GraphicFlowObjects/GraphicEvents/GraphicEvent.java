@@ -1,13 +1,12 @@
-package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Events;
+package it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicEvents;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicFlowObject;
 
-public class Event extends FlowObject {
+public class GraphicEvent extends GraphicFlowObject {
 
-	private static final long serialVersionUID = -8766122332897202823L;
-	private final EventType eventType;
+    private final EventType eventType;
 
-    public Event(String id, String name, EventType eventType) {
+    public GraphicEvent(String id, String name, EventType eventType) {
         super(id, name);
         this.eventType = eventType;
     }

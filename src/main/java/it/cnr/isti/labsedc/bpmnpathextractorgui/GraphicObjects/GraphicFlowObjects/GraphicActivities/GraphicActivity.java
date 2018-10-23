@@ -1,13 +1,12 @@
-package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Activities;
+package it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicActivities;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicFlowObject;
 
-public class Activity extends FlowObject {
+public class GraphicActivity extends GraphicFlowObject {
 
-	private static final long serialVersionUID = 6168150123329483949L;
-	private final ActivityType activityType;
+    private final ActivityType activityType;
 
-    public Activity(String id, String name, ActivityType activityType) {
+    public GraphicActivity(String id, String name, ActivityType activityType) {
         super(id, name);
         this.activityType = activityType;
     }
@@ -21,4 +20,5 @@ public class Activity extends FlowObject {
     }
 
     public ActivityType getActivityType() { return activityType; }
+
 }

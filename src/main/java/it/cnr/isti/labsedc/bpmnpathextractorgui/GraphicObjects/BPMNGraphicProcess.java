@@ -1,34 +1,33 @@
-package it.cnr.isti.labsedc.bpmnpathextractor.Objects;
+package it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections.Connection;
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicConnections.GraphicConnection;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicFlowObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BPMNProcess implements Serializable {
+public class BPMNGraphicProcess {
 
-	private static final long serialVersionUID = 6845614886589219079L;
-	private final String id;
+    private final String id;
     private final String name;
     private final String parentProcessID;
-    private final FlowObject parentObject;
+    private final GraphicFlowObject parentObject;
     private final boolean executable;
     private final int deepness;
+    private int posX;
+    private int posY;
+    private int width;
+    private int height;
     private String poolID;
     private String poolName;
     private ArrayList<String> startEvents;
-    private HashMap<String, FlowObject> flowObjects;
-    private HashMap<String, Connection> connections;
-    private ArrayList<BPMNProcess> childrenProcesses;
+    private HashMap<String, GraphicFlowObject> flowObjects;
+    private HashMap<String, GraphicConnection> connections;
+    private HashMap<String, GraphicConnection> messageFlows;
     private ArrayList<String> innerLanes;
-    private ArrayList<BPMNPath> paths;
-    private ArrayList<BPMNCycle> cycles;
-    private int pathID;
-    private int cycleID;
+    private ArrayList<LaneCoordinate> lanesCoordinates;
 
-    public BPMNProcess(String id, String name, String parentProcessID, FlowObject parentObject, boolean executable, int deepness) {
+    public BPMNGraphicProcess(String id, String name, String parentProcessID, GraphicFlowObject parentObject, boolean executable, int deepness) {
         this.id = id;
         this.name = name;
         this.parentProcessID = parentProcessID;
@@ -38,12 +37,9 @@ public class BPMNProcess implements Serializable {
         startEvents = new ArrayList<>();
         flowObjects = new HashMap<>();
         connections = new HashMap<>();
-        childrenProcesses = new ArrayList<>();
+        messageFlows = new HashMap<>();
         innerLanes = new ArrayList<>();
-        paths = new ArrayList<>();
-        cycles = new ArrayList<>();
-        pathID = 0;
-        cycleID = 0;
+        lanesCoordinates = new ArrayList<>();
     }
 
 
@@ -51,7 +47,7 @@ public class BPMNProcess implements Serializable {
     public boolean equals(Object obj) {
         if (obj == null) return  false;
         if (getClass() != obj.getClass()) return false;
-        BPMNProcess process = (BPMNProcess) obj;
+        BPMNGraphicProcess process = (BPMNGraphicProcess) obj;
         return this.id.equals(process.id);
     }
 
@@ -69,54 +65,51 @@ public class BPMNProcess implements Serializable {
         return stringBuilder.toString();
     }
 
-    public int getPathID() { return pathID++; }
-    public int getCycleID() { return cycleID++; }
-
     public String getId() { return id; }
     public String getName() { return name; }
     public String getParentProcessID() { return parentProcessID; }
-    public FlowObject getParentObject() { return parentObject; }
+    public GraphicFlowObject getParentObject() { return parentObject; }
     public boolean isExecutable() { return executable; }
     public int getDeepness() { return deepness; }
+    public int getPosX() { return posX; }
+    public int getPosY() { return posY; }
+    public int getHeight() { return height; }
+    public int getWidth() { return width; }
+
     public String getPoolID() { return poolID; }
     public String getPoolName() { return poolName; }
 
     public ArrayList<String> getStartEvents() { return startEvents; }
-    public HashMap<String, FlowObject> getFlowObjects() { return flowObjects; }
-    public HashMap<String, Connection> getConnections() { return connections; }
-    public ArrayList<BPMNProcess> getChildrenProcesses() { return childrenProcesses; }
+    public HashMap<String, GraphicFlowObject> getFlowObjects() { return flowObjects; }
+    public HashMap<String, GraphicConnection> getConnections() { return connections; }
+    public HashMap<String, GraphicConnection> getMessageFlows() { return messageFlows; }
     public ArrayList<String> getInnerLanes() { return innerLanes; }
+    public ArrayList<LaneCoordinate> getLanesCoordinates() { return lanesCoordinates; }
 
-    public ArrayList<BPMNPath> getPaths() { return paths; }
-    public ArrayList<BPMNCycle> getCycles() { return cycles; }
-
-    public FlowObject getFlowObject(String id) { return flowObjects.get(id); }
-    public Connection getConnection(String id) { return connections.get(id); }
-
-    public ArrayList<BPMNCycle> getCyclesByRoot(String id) {
-        ArrayList<BPMNCycle> rootCycles = new ArrayList<>();
-        for (BPMNCycle cycle : cycles)
-            if (cycle.getRootObject().getId().equals(id))
-                rootCycles.add(cycle);
-        return rootCycles;
-    }
+    public GraphicFlowObject getFlowObject(String id) { return flowObjects.get(id); }
+    public GraphicConnection getConnection(String id) { return connections.get(id); }
+    public GraphicConnection getMessageFlow(String id) { return messageFlows.get(id); }
 
     public boolean isPresentLane(String laneID) { return innerLanes.contains(laneID); }
+
+    public void setPosX(int posX) { this.posX = posX; }
+    public void setPosY(int posY) { this.posY = posY; }
+    public void setWidth(int width) { this.width = width; }
+    public void setHeight(int height) { this.height = height; }
 
     public void setPoolID(String poolID) { this.poolID = poolID; }
     public void setPoolName(String poolName) { this.poolName = poolName; }
 
-    public void setPaths(ArrayList<BPMNPath> paths) { this.paths = new ArrayList<>(paths); }
     public void setInnerLanes(ArrayList<String> innerLanes) { this.innerLanes = new ArrayList<>(innerLanes); }
 
     public void addStartEvent(String id) { startEvents.add(id); }
-    public void addFlowObject(String key, FlowObject flowObject) { flowObjects.put(key, flowObject); }
-    public void addConnection(String key, Connection connection) { connections.put(key, connection); }
-    public void addChildProcess(BPMNProcess childProcess) { childrenProcesses.add(childProcess); }
+    public void addFlowObject(String key, GraphicFlowObject flowObject) { flowObjects.put(key, flowObject); }
+    public void addConnection(String key, GraphicConnection connection) { connections.put(key, connection); }
+    public void addMessageFlow(String key, GraphicConnection messageFlow) { messageFlows.put(key, messageFlow); }
     public void addInnerLane(String laneID) { innerLanes.add(laneID); }
-    public void addPath(BPMNPath path) { paths.add(path); }
-    public void addCycle(BPMNCycle cycle) { cycles.add(cycle); }
 
-    public void removePath(BPMNPath path) { paths.remove(path); }
+    public void addLaneCoordinate(String laneID, int posX, int posY, int width, int height) {
+        lanesCoordinates.add(new LaneCoordinate(laneID, posX, posY, width, height));
+    }
 
 }

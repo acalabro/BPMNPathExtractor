@@ -21,14 +21,16 @@ public class BPMNPathExtractor {
         switch (extractionType) {
             case TYPE_ALFA:
                 for (String startEventID : process.getStartEvents()) {
-                BPMNPath path = new BPMNPath(process.getPathID());
-                path.appendFlowObject(process.getFlowObject(startEventID));
-                createPath(process, path);
-                ArrayList<BPMNPath> paths = new ArrayList<>(process.getPaths());
-                for (BPMNPath pathToExplode : paths)
-                    explodePathWithCycles(process, pathToExplode, process.getCycles(), 0);
-            }
-            break;
+                    BPMNPath path = new BPMNPath(process.getPathID());
+                    path.appendFlowObject(process.getFlowObject(startEventID));
+                    createPath(process, path);
+                    ArrayList<BPMNPath> paths = new ArrayList<>(process.getPaths());
+                    for (BPMNPath pathToExplode : paths)
+                        explodePathWithCycles(process, pathToExplode, process.getCycles(), 0);
+                }
+                break;
+		    default:
+                throw new UnsupportedOperationException("Extraction type not supported.");
         }
 
     }
@@ -108,18 +110,16 @@ public class BPMNPathExtractor {
         LinkedList<FlowObject> flowObjects = path.getFlowObjects();
         for (int i = index; i < flowObjects.size(); i++) {
             FlowObject flowObject = flowObjects.get(i);
-            if (flowObject instanceof Gateway) {
-                for (BPMNCycle cycle : cycles) {
-                    if (cycle.getRootObject().equals(flowObject)) {
-                        BPMNPath incompletePath = new BPMNPath(path, process.getPathID());
-                        LinkedList<FlowObject> cycleObjects = cycle.getFlowObjects();
-                        for (int j = 0; j < cycleObjects.size(); j++)
-                            incompletePath.addFlowObject(i + j + 1, cycleObjects.get(j));
-                        process.addPath(incompletePath);
-                        ArrayList<BPMNCycle> newCycles = new ArrayList<>(cycles);
-                        newCycles.remove(cycle);
-                        explodePathWithCycles(process, incompletePath, newCycles, i + 1);
-                    }
+            for (BPMNCycle cycle : cycles) {
+                if (cycle.getRootObject().equals(flowObject)) {
+                    BPMNPath incompletePath = new BPMNPath(path, process.getPathID());
+                    LinkedList<FlowObject> cycleObjects = cycle.getFlowObjects();
+                    for (int j = 0; j < cycleObjects.size(); j++)
+                        incompletePath.addFlowObject(i + j + 1, cycleObjects.get(j));
+                    process.addPath(incompletePath);
+                    ArrayList<BPMNCycle> newCycles = new ArrayList<>(cycles);
+                    newCycles.remove(cycle);
+                    explodePathWithCycles(process, incompletePath, newCycles, i + 1);
                 }
             }
         }
@@ -127,7 +127,6 @@ public class BPMNPathExtractor {
     }
 
     public void explodeProcessesWithSubProcesses(ArrayList<BPMNProcess> processes) {
-
         for (BPMNProcess process : processes) {
             if (process.getDeepness() == 0) {
                 ArrayList<BPMNPath> paths = new ArrayList<>(process.getPaths());

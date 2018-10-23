@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+
+        <title>BPMN Path Extractor</title>
+
+        <style type="text/css">
+
+            body, html {
+                height: 100%;
+                margin: 0;
+            }
+            ::selection {
+                background-color: #F9FAFC;
+            }
+            .main-form {
+                font-size: 8pt;
+                text-align: center;
+            }
+            .activity {
+                border: 1.5pt solid black;
+                width: 80pt;
+                height: 50pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 10pt;
+            }
+            .selected-activity {
+                border: 1.5pt solid red;
+                width: 80pt;
+                height: 50pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 10pt;
+            }
+            .gateway {
+                border: 1.5pt solid black;
+                width: 50pt;
+                height: 50pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: url(../resources/gateway-cross.png) no-repeat center;
+                background-size: cover;
+                transform: rotate(45deg) scale(0.7);
+            }
+            .selected-gateway {
+                border: 1.5pt solid red;
+                width: 50pt;
+                height: 50pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: url(../resources/gateway-cross.png) no-repeat center;
+                background-size: cover;
+                transform: rotate(45deg) scale(0.7);
+            }
+            .start-event {
+                border: 1.5pt solid black;
+                width: 50pt;
+                height: 50pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+            }
+            .selected-start-event {
+                border: 1.5pt solid red;
+                width: 50pt;
+                height: 50pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+            }
+            .intermediate-event {
+                border: 2.9pt double black;
+                width: 48pt;
+                height: 48pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+            }
+            .selected-intermediate-event {
+                border: 2.9pt double red;
+                width: 48pt;
+                height: 48pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+            }
+            .end-event {
+                border: 2.9pt solid black;
+                width: 48pt;
+                height: 48pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+            }
+            .selected-end-event {
+                border: 2.9pt solid red;
+                width: 48pt;
+                height: 48pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+            }
+            .diagram {
+                height: inherit;
+                width: inherit;
+            }
+            .ui-toolbar {
+                background: #3A4047;
+                border-color: #3A4047;
+                border-radius: 0;
+            }
+            .ui-fileupload-content .ui-progressbar {
+                display: none;
+                margin: 0;
+            }
+            .ui-fileupload-buttonbar {
+                background: transparent none;
+                border: none;
+            }
+            .ui-fileupload-content {
+                display: none;
+            }
+            .ui-fileupload-buttonbar .ui-fileupload-choose {
+                background: #3A4047;
+                border: none;
+                color: #F9FAFC;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-fileupload-buttonbar .ui-fileupload-upload {
+                background: #3A4047;
+                border: none;
+                color: #F9FAFC;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-fileupload-buttonbar .ui-fileupload-cancel {
+                background: #3A4047;
+                border: none;
+                color: #F9FAFC;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-widget-content {
+                border-color: #B8BFC6;
+            }
+            .ui-panelgrid-cell {
+                background: #F9FAFC;
+            }
+            .ui-layout-unit-content.ui-widget-content {
+                height: 500pt;
+                background: #F9FAFC;
+            }
+            .ui-layout-unit-header.ui-widget-header.ui-corner-all {
+                background: #B8BFC6;
+                border-color: #B8BFC6;
+                color: #3A4047;
+                text-shadow: none;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            .ui-button.ui-widget.ui-corner-all {
+                background: #3A4047;
+                border: none;
+                color: #F9FAFC;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-autocomplete .ui-autocomplete-dropdown {
+                background: #3A4047;
+                border: none;
+                color: #F9FAFC;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-layout-resizer.ui-layout-resizer-west.ui-layout-resizer-open.ui-layout-resizer-west-open {
+                background: #F9FAFC;
+            }
+            .ui-growl-image {
+                width: 0;
+                height: 0;
+                float: right;
+            }
+            .ui-growl-title {
+                font-size: 15pt;
+                text-align: center;
+                text-shadow: none;
+            }
+            .ui-growl-item-container {
+                background-color: #3A4047;
+                border-radius: 10pt;
+                box-shadow: none;
+                width: 190pt;
+            }
+            .ui-growl-message p {
+                font-size: 12pt;
+                text-align: center;
+                text-shadow: none;
+            }
+            .ui-growl {
+                position:fixed;
+                top: 85%;
+                left: 81%;
+                width: 360px;
+                height: 110px;
+                box-shadow: none;
+            }
+            .ui-autocomplete-input.ui-autocomplete-dd-input.ui-inputfield.ui-widget.ui-state-default.ui-corner-left {
+                box-shadow: none;
+                text-shadow: none;
+                text-align: center;
+                background: #F9FAFC;
+                border-color: #3A4047;
+            }
+            .ui-dialog-titlebar.ui-widget-header.ui-helper-clearfix.ui-corner-top.ui-draggable-handle {
+                background: #B8BFC6;
+                text-shadow: none;
+            }
+            .ui-dialog-title {
+                color: #3A4047;
+            }
+            .ui-autocomplete-item.ui-autocomplete-list-item.ui-corner-all {
+                font-size: 8pt;
+                text-align: center;
+            }
+            .ui-autocomplete-item.ui-autocomplete-list-item.ui-corner-all.ui-state-highlight {
+                background: #3A4047;
+            }
+            .ui-layout-unit-header.ui-widget-header.ui-corner-all {
+                border-radius: 5pt;
+            }
+            .ui-chkbox-box.ui-widget.ui-corner-all.ui-state-default {
+                box-shadow: none;
+                background: #B8BFC6;
+                border: none;
+            }
+            .ui-icon {
+                background-image: url(../resources/white-icons.png) !important;
+            }
+            .ui-icon.ui-icon-closethick {
+                background-image: url(../resources/black-icons.png) !important;
+            }
+            .ui-chkbox-icon.ui-icon.ui-c.ui-icon-check {
+                background-image: url(../resources/black-icons.png) !important;
+            }
+            .ui-radiobutton-icon.ui-icon.ui-c.ui-icon-bullet {
+                background-image: url(../resources/black-icons.png) !important;
+            }
+            .ui-dialog-content.ui-widget-content {
+                background: #F9FAFC;
+            }
+            .ui-radiobutton-box.ui-widget.ui-corner-all.ui-state-default {
+                background: #B8BFC6;
+                box-shadow: none;
+            }
+            .ui-selectonelistbox.ui-inputfield.ui-widget.ui-widget-content.ui-corner-all {
+                border: none;
+                box-shadow: none;
+                width: inherit;
+                background: #F9FAFC;
+                text-shadow: none;
+            }
+            .ui-selectlistbox-item.ui-corner-all.ui-state-highlight {
+                background: #3A4047;
+                text-shadow: none;
+            }
+            .ui-selectlistbox-item.ui-corner-all.ui-state-hover {
+                background: #B8BFC6;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-inputfield.ui-inputtextarea.ui-widget.ui-state-default.ui-corner-all.ui-inputtextarea-resizable {
+                background: #F9FAFC;
+                border: none;
+                text-shadow: none;
+                box-shadow: none;
+            }
+            .ui-inputfield.ui-inputtext.ui-widget.ui-state-default.ui-corner-all{
+                box-shadow: none;
+                text-shadow: none;
+                text-align: center;
+                background: #F9FAFC;
+                border-color: #3A4047;
+            }
+
+        </style>
+    </h:head>
+
+    <h:body>
+
+        <h:form id="mainForm" styleClass="main-form">
+
+            <p:growl id="growl" showDetail="true" life="4000" autoUpdate="true"/>
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+                    <p:fileUpload fileUploadListener="#{diagramView.createModel}" multiple="false" allowTypes="/(\.|\/)(bpmn)$/" update="mainForm"/>
+                </f:facet>
+                <f:facet name="right">
+                    <p:commandButton id="drawDiagram" value="Draw Diagram" actionListener="#{diagramView.drawDiagram(null)}" update="mainForm:diagram mainForm:paths" icon="ui-icon-pencil" disabled="#{diagramView.showActionButtons}"/>
+                    <p:commandButton id="setProperties" value="Set Properties" action="#{diagramView.disablePropertiesButtons}" onclick="PF('setPropertiesDialog').show();" icon="ui-icon-wrench" disabled="#{diagramView.showActionButtons}" update="mainForm:key mainForm:value mainForm:addProperty"/>
+                    <p:commandButton id="extractPaths" value="Extract Paths" onclick="PF('extractPathsDialog').show();" icon="ui-icon ui-icon-gear" disabled="#{diagramView.showActionButtons}"/>
+                </f:facet>
+
+            </p:toolbar>
+
+            <p:sticky target="toolbar"/>
+
+            <p:dialog header="Extraction Parameters" widgetVar="extractPathsDialog" resizable="false">
+
+                <p:panelGrid columns="4">
+                    <p:outputLabel for="name" value="Name"/>
+                    <p:outputLabel for="deepness" value="Deepness"/>
+                    <p:outputLabel for="pools" value="Pools"/>
+                    <p:outputLabel for="lanes" value="Lanes"/>
+                    <p:outputLabel id="name" value="#{checkBoxView.name}"/>
+                    <p:autoComplete id="deepness" dropdown="true" value="#{checkBoxView.selectedDeepness}" completeMethod="#{checkBoxView.completeDeepnessList}"/>
+                    <p:selectManyCheckbox id="pools" value="#{checkBoxView.selectedPools}" layout="grid" columns="1">
+                        <f:selectItems value="#{checkBoxView.pools}" var="pool" itemLabel="#{pool}" itemValue="#{pool}"/>
+                    </p:selectManyCheckbox>
+                    <p:selectManyCheckbox id="lanes" value="#{checkBoxView.selectedLanes}" layout="grid" columns="3">
+                        <f:selectItems value="#{checkBoxView.lanes}" var="lane" itemLabel="#{lane}" itemValue="#{lane}"/>
+                    </p:selectManyCheckbox>
+                </p:panelGrid>
+
+                <p:commandButton value="OK" action="#{checkBoxView.sendExtractionRequest}" onclick="PF('extractPathsDialog').hide();" icon="ui-icon-check" update="mainForm:paths"/>
+
+            </p:dialog>
+
+            <p:dialog header="Set Properties" widgetVar="setPropertiesDialog" resizable="false">
+
+                <p:panelGrid columns="4">
+                    <p:outputLabel for="process" value="Process"/>
+                    <p:outputLabel for="activity" value="Activity"/>
+                    <p:outputLabel for="property" value="Add Property"/>
+                    <p:outputLabel for="properties" value="Actual Properties"/>
+                    <p:selectOneListbox id="process" value="#{checkBoxView.selectedProcess}">
+                        <p:ajax process="@this" update="mainForm:activity" listener="#{diagramView.fillProcessActivities}"/>
+                        <f:selectItems value="#{checkBoxView.processes}" var="process" itemLabel="#{process}" itemValue="#{process}"/>
+                    </p:selectOneListbox>
+                    <p:selectOneListbox id="activity" value="#{checkBoxView.selectedActivity}">
+                        <p:ajax process="@this" update="mainForm:properties mainForm:key mainForm:value mainForm:addProperty" listener="#{diagramView.fillActivityProperties}"/>
+                        <f:selectItems value="#{checkBoxView.selectedProcessActivities}" var="activity" itemValue="#{activity}" itemLabel="#{activity}"/>
+                    </p:selectOneListbox>
+                    <p:panelGrid id="property" columns="1" styleClass="ui-panelgrid-blank">
+                        <p:panelGrid columns="2">
+                            <p:outputLabel for="key" value="Key"/>
+                            <p:inputText id="key" value="#{checkBoxView.propertyKey}" disabled="#{diagramView.showPropertiesInputText}"/>
+                            <p:outputLabel for="value" value="Value"/>
+                            <p:inputText id="value" value="#{checkBoxView.propertyValue}" disabled="#{diagramView.showPropertiesInputText}"/>
+                        </p:panelGrid>
+                        <p:commandButton id="addProperty" value="Add Property" action="#{diagramView.addProperty}" icon="ui-icon-plus" disabled="#{diagramView.showPropertiesInputText}" update="mainForm:key mainForm:value mainForm:properties"/>
+                    </p:panelGrid>
+                    <p:inputTextarea id="properties" readonly="true" value="#{checkBoxView.activityProperties}"/>
+                </p:panelGrid>
+
+            </p:dialog>
+
+            <p:layout>
+
+                <p:layoutUnit position="center" header="BPMN Graph" gutter="0">
+                    <p:diagram id="diagram" value="#{diagramView.model}" styleClass="diagram"/>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="west" header="Paths List" size="300" gutter="0">
+                    <p:selectOneListbox id="paths" value="#{checkBoxView.selectedPath}" disabled="#{diagramView.showPaths}">
+                        <p:ajax process="@this" update="mainForm:diagram" listener="#{diagramView.markSelectedPath}"/>
+                        <f:selectItems value="#{checkBoxView.pathsList}" var="path" itemLabel="#{path}" itemValue="#{path}"/>
+                    </p:selectOneListbox>
+                </p:layoutUnit>
+
+            </p:layout>
+
+
+        </h:form>
+
+    </h:body>
+
+    <script type="text/javascript">
+        function createClass(selector, style) {
+            if (!document.styleSheets) return;
+            if (document.getElementsByTagName('head').length === 0) return;
+
+            var styleSheet,mediaType;
+
+            if (document.styleSheets.length > 0) {
+                for (var i = 0, length = document.styleSheets.length; i &lt; length; i++) {
+                    if (document.styleSheets[i].disabled)
+                        continue;
+                    var media = document.styleSheets[i].media;
+                    mediaType = typeof media;
+
+                    if (mediaType === 'string') {
+                        if (media === '' || (media.indexOf('screen') !== -1)) {
+                            styleSheet = document.styleSheets[i];
+                        }
+                    }
+                    else if (mediaType ==='object') {
+                        if (media.mediaText === '' || (media.mediaText.indexOf('screen') !== -1)) {
+                            styleSheet = document.styleSheets[i];
+                        }
+                    }
+
+                    if (typeof styleSheet !== 'undefined')
+                        break;
+                }
+            }
+
+            if (typeof styleSheet === 'undefined') {
+                var styleSheetElement = document.createElement('style');
+                styleSheetElement.type = 'text/css';
+                document.getElementsByTagName('head')[0].appendChild(styleSheetElement);
+
+                for (i = 0; i &lt; document.styleSheets.length; i++) {
+                    if (document.styleSheets[i].disabled) {
+                        continue;
+                    }
+                    styleSheet = document.styleSheets[i];
+                }
+
+                mediaType = typeof styleSheet.media;
+            }
+
+            if (mediaType === 'string') {
+                for (var i = 0, l = styleSheet.rules.length; i &lt; l; i++) {
+                    if(styleSheet.rules[i].selectorText &amp;&amp; styleSheet.rules[i].selectorText.toLowerCase() === selector.toLowerCase()) {
+                        styleSheet.rules[i].style.cssText = style;
+                        return;
+                    }
+                }
+                styleSheet.addRule(selector,style);
+            }
+            else if (mediaType === 'object') {
+                var styleSheetLength = (styleSheet.cssRules) ? styleSheet.cssRules.length : 0;
+                for (var i = 0; i &lt; styleSheetLength; i++) {
+                    if (styleSheet.cssRules[i].selectorText &amp;&amp; styleSheet.cssRules[i].selectorText.toLowerCase() === selector.toLowerCase()) {
+                        styleSheet.cssRules[i].style.cssText = style;
+                        return;
+                    }
+                }
+                styleSheet.insertRule(selector + '{' + style + '}', styleSheetLength);
+            }
+        }
+    </script>
+
+</html>

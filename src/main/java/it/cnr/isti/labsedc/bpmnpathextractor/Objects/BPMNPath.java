@@ -3,12 +3,14 @@ package it.cnr.isti.labsedc.bpmnpathextractor.Objects;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections.Connection;
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-public class BPMNPath {
+public class BPMNPath implements Serializable {
 
-    private final int id;
+	private static final long serialVersionUID = 5213178017509749166L;
+	private final int id;
     private LinkedList<FlowObject> flowObjects;
     private HashMap<String, Connection> connections;
 

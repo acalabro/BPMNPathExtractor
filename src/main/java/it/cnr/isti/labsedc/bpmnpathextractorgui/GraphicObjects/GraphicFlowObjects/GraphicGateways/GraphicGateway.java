@@ -1,13 +1,12 @@
-package it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.Gateways;
+package it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicGateways;
 
-import it.cnr.isti.labsedc.bpmnpathextractor.Objects.FlowObjects.FlowObject;
+import it.cnr.isti.labsedc.bpmnpathextractorgui.GraphicObjects.GraphicFlowObjects.GraphicFlowObject;
 
-public class Gateway extends FlowObject {
+public class GraphicGateway extends GraphicFlowObject {
 
-	private static final long serialVersionUID = -6461878604582675966L;
-	private final GatewayType gatewayType;
+    private final GatewayType gatewayType;
 
-    public Gateway(String id, String name, GatewayType gatewayType) {
+    public GraphicGateway(String id, String name, GatewayType gatewayType) {
         super(id, name);
         this.gatewayType = gatewayType;
     }
@@ -21,4 +20,5 @@ public class Gateway extends FlowObject {
     }
 
     public GatewayType getGatewayType() { return gatewayType; }
+
 }

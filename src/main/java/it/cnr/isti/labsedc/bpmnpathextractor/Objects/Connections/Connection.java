@@ -2,9 +2,12 @@ package it.cnr.isti.labsedc.bpmnpathextractor.Objects.Connections;
 
 import it.cnr.isti.labsedc.bpmnpathextractor.Objects.BPMNObject;
 
-public class Connection implements BPMNObject {
+import java.io.Serializable;
 
-    protected final String id;
+public class Connection implements BPMNObject, Serializable {
+
+	private static final long serialVersionUID = -7281283768153909867L;
+	protected final String id;
     protected final String name;
     private ConnectionType connectionType;
     private String sourceRef;

@@ -63,7 +63,7 @@ public class BPMNParser {
         return 1;
     }
 
-    public static int saveDocumentToFile(Document document, String bpmnName) throws IOException {
+    private static int saveDocumentToFile(Document document, String bpmnName) throws IOException {
 
         String folderPath = properties.getProperty("dbFolderPath") + "/" + bpmnName;
         File dbFolder = new File(folderPath);
@@ -90,7 +90,7 @@ public class BPMNParser {
         BPMNProperties properties = new BPMNProperties();
 
         ArrayList<BPMNProcess> processes = new ArrayList<>();
-        NodeList processesNodes = document.getElementsByTagNameNS(properties.getProperty("defaultNamespace"), "process");
+        NodeList processesNodes = document.getElementsByTagNameNS(properties.getProperty("bpmnDefaultNamespace"), "process");
 
         for (int i = 0; i < processesNodes.getLength(); i++) {
             processes.add(parseProcess(processesNodes.item(i), processes, null, null,0));
@@ -165,7 +165,9 @@ public class BPMNParser {
                     break;
                 case "subProcess":
                     FlowObject subProcess = parseActivity(childNode, ActivityType.SUB_PROCESS);
-                    processes.add(parseProcess(childNode, processes, processID, subProcess, deepness + 1));
+                    BPMNProcess childProcess = parseProcess(childNode, processes, processID, subProcess, deepness + 1);
+                    processes.add(childProcess);
+                    process.addChildProcess(childProcess);
                     process.addFlowObject(nodeID, subProcess);
                     break;
                 case "exclusiveGateway":
@@ -345,7 +347,7 @@ public class BPMNParser {
 
         BPMNProperties properties = new BPMNProperties();
 
-        NodeList collaborationNodes = document.getElementsByTagNameNS(properties.getProperty("defaultNamespace"), "collaboration");
+        NodeList collaborationNodes = document.getElementsByTagNameNS(properties.getProperty("bpmnDefaultNamespace"), "collaboration");
         for (int i = 0; i < collaborationNodes.getLength(); i++) {
             Node collaborationNode = collaborationNodes.item(i);
             NodeList participants = collaborationNode.getChildNodes();

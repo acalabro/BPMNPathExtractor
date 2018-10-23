@@ -13,11 +13,12 @@ public class BPMNFilter {
 
     private HashMap<String, Document> documentCache;
     private BPMNProperties properties;
-    private BPMNPathExtractor extractor = new BPMNPathExtractor();
+    private BPMNPathExtractor extractor;
 
     public BPMNFilter() {
         documentCache = new HashMap<>();
         properties = new BPMNProperties();
+        extractor = new BPMNPathExtractor();
         extractor.setExtractionType(ExtractionType.TYPE_ALFA);
     }
 
@@ -49,12 +50,12 @@ public class BPMNFilter {
     private ArrayList<BPMNProcess> extractPathsFromBPMNDocument(Document bpmnDocument, int deepness, List<String> poolsID, List<String> lanesID) {
 
         ArrayList<BPMNProcess> processes = BPMNParser.parseProcessesList(bpmnDocument);
-        if (deepness > -1) processes = filterByDeepness(processes, deepness);
         if (poolsID.size() > 0) processes = filterByPool(processes, poolsID);
-        for (BPMNProcess process : processes) {
+        if (deepness > -1) processes = filterByDeepness(processes, deepness);
+        for (BPMNProcess process : processes)
             extractor.extractPaths(process);
-            extractor.explodeProcessesWithSubProcesses(processes);
-        }
+        extractor.explodeProcessesWithSubProcesses(processes);
+
         if (lanesID.size() > 0) filterByLane(processes, lanesID);
         return processes;
 
@@ -74,11 +75,20 @@ public class BPMNFilter {
             for (BPMNProcess process : processes) {
                 if (process.getPoolID() != null && process.getPoolID().equals(poolID) && !processesToAnalyze.contains(process)) {
                     processesToAnalyze.add(process);
+                    addChildrenRecursively(processesToAnalyze, process);
                     break;
                 }
             }
         }
+
         return processesToAnalyze;
+    }
+
+    private void addChildrenRecursively(ArrayList<BPMNProcess> processesToAnalyze, BPMNProcess process) {
+        for (BPMNProcess childProcess : process.getChildrenProcesses()) {
+            processesToAnalyze.add(childProcess);
+            addChildrenRecursively(processesToAnalyze, childProcess);
+        }
     }
 
     private void filterByLane(ArrayList<BPMNProcess> processes, List<String> lanesID) {
